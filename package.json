@@ -1,0 +1,29 @@
+{
+  "name": "paragraph",
+  "version": "0.1.0-alpha",
+  "description": "Simple text processor made in Vanilla JavaScript.",
+  "keywords": [
+    "office",
+    "word",
+    "processor",
+    "javascript"
+  ],
+  "homepage": "https://github.com/hppsrc/paragraph#readme",
+  "bugs": {
+    "url": "https://github.com/hppsrc/paragraph/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hppsrc/paragraph.git"
+  },
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "Hppsrc",
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

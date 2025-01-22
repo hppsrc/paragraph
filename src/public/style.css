@@ -29,6 +29,34 @@
         margin: 0 1px;
     }
 
+    #action_box {
+        width: 200px;
+        height: fit-content;
+
+        flex-direction: column;
+
+        display: none;
+        position: absolute;
+        top: 0px;
+        background-color: #d6d6d6;
+
+        z-index: 1;
+
+        transition: top 0.25s, left 0.1s;
+
+        div {
+
+            &:hover {
+
+                background-color: hsl(188, 100%, 56%);
+                cursor: pointer;
+
+            }
+
+        }
+
+    }
+
 }
 
 html {
@@ -43,6 +71,8 @@ html {
             align-items: center;
 
             text-align: center;
+            
+            z-index: 10;
 
             h1 {
                 padding: 0.1em;
@@ -89,7 +119,6 @@ html {
                     width: 100%;
 
                     p {
-                        /* height: 100%; */
 
                         padding: 0 1%;
 
@@ -106,8 +135,6 @@ html {
 
                     height: 50%;
 
-                    padding-left: 0.5%;
-
                     display: flex;
                     flex-direction: row;
                     align-items: center;
@@ -117,7 +144,7 @@ html {
 
                     p {
 
-                        padding: 0 0.5%;
+                        padding: 0 1%;
 
                     }
 

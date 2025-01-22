@@ -10,14 +10,23 @@
     .glow {
         background-color: #d6d6d6;
     }
-    
+
+    .f_row{
+        display: flex;
+        flex-direction: row;
+    }
+
+    .f_col{
+        display: flex;
+        flex-direction: column;
+    }
 
     vr {
         border-left: 1px solid #9a9a9a;
-        height: inherit;
+        height: 80%;
         width: 1px;
         display: inline-block;
-        margin: 0 10px;
+        margin: 0 1px;
     }
 
 }
@@ -28,7 +37,93 @@ html {
 
         header {
 
-            height: 10vh;
+            height: 50px;
+
+            justify-content: flex-start;
+            align-items: center;
+
+            text-align: center;
+
+            h1 {
+                padding: 0.1em;
+                
+            }
+
+            #header_top_bar_status {
+
+                width: 15%;
+
+                p {
+                    font-style: italic;
+                    font-size: small;
+
+                    color: #555;
+                    padding: 0 1%;
+
+                    &:hover {
+                        background-color: #bbb;
+                        cursor: pointer;
+                    }
+
+                }
+
+            }
+
+            #header_top_bar_actions {
+
+                height: 100%;
+
+                flex-grow: 1;
+                
+                justify-content: flex-start;
+
+                #header_top_bar_actions_select {
+
+                    height: 50%;
+
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: flex-start;
+
+                    width: 100%;
+
+                    p {
+                        /* height: 100%; */
+
+                        padding: 0 1%;
+
+                        &:hover {
+                            background-color: #bbb;
+                            cursor: pointer;
+                        }
+
+                    }
+
+                }
+
+                #header_top_bar_actions_do {
+
+                    height: 50%;
+
+                    padding-left: 0.5%;
+
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: flex-start;
+
+                    width: 100%;
+
+                    p {
+
+                        padding: 0 0.5%;
+
+                    }
+
+                }
+    
+            }
 
         }
 
@@ -38,7 +133,7 @@ html {
             justify-content: center;
             align-items: center;
 
-            height: 90vh;
+            height: calc(100vh - 100px);
 
         }
 

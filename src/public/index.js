@@ -1,5 +1,5 @@
-const version = "0.1.3-alpha";
-const build = "250122161";
+const version = "0.1.4-alpha";
+const build = "250123161";
 const git_branch = "dev";
 
 // vars
@@ -15,16 +15,16 @@ menus = {
         },
         {
             name: "Open",
-            disable: false,
-            action: function() { alert("Open action is not available") }
+            disable: true,
+            action : null 
         },
         {
             name: "Save",
-            disable: false,
-            action: function() { alert("Save action is not available") }
+            disable: true,
+            action : null
         },
         {
-            name: "ExportExportExportExport",
+            name: "Export",
             disable: true,
             action: null
         }
@@ -32,28 +32,28 @@ menus = {
     editMenu: [
         {
             name: "Undo",
-            disable: false,
-            action: function() { alert("Undo action is not available") }
+            disable: true,
+            action: null
         },
         {
             name: "Redo",
-            disable: false,
-            action: function() { alert("Redo action is not available") }
+            disable: true,
+            action: null
         },
         {
             name: "Cut",
-            disable: false,
-            action: function() { alert("Cut action is not available") }
+            disable: true,
+            action: null
         },
         {
             name: "Copy",
-            disable: false,
-            action: function() { alert("Copy action is not available") }
+            disable: true,
+            action: null
         },
         {
             name: "Paste",
-            disable: false,
-            action: function() { alert("Paste action is not available") }
+            disable: true,
+            action: null
         }
     ]
 }
@@ -72,9 +72,10 @@ function show_action(elementId, action) {
     
     action_box.style.left = `${rect.x}px`
     action_box.style.display = "flex";
-    // action_box.style.width = action_box.style.width < 200 ? "200px" : "calc(fit-content + 50px)";
+    overlay.style.display = "block";
 
     setTimeout(() => {action_box.style.top = "50px";}, 1);
+    setTimeout(() => {overlay.style.opacity = "1";}, 1);
 
     if (action == 0) {
         let current = elementId.textContent.toLowerCase() + "Menu";
@@ -82,6 +83,7 @@ function show_action(elementId, action) {
 
         if (values) {
             values.forEach(item => {
+                
                 let div = document.createElement('div');
                 div.textContent = item.name;
                 
@@ -93,9 +95,11 @@ function show_action(elementId, action) {
                 } else {
 
                     div.addEventListener('click', () => {
-                        action_box.style.display = 'none';
-                        item.action();
-                        setTimeout(() => {action_box.style.top = "40px";}, 1);
+                        // action_box.style.display = 'none';
+                        item.action()
+                        setTimeout(() => {overlay.style.opacity = "0";}, 1);
+                        setTimeout(() => {action_box.style.top = "-100px";}, 1);
+                        setTimeout(() => {action_box.innerHTML = ""}, 100);
                     })
                     
                 }
@@ -103,11 +107,19 @@ function show_action(elementId, action) {
                 action_box.appendChild(div);
             });
         }
+
+        overlay.addEventListener('click', () => {
+            setTimeout(() => {overlay.style.opacity = "0";}, 1);
+            setTimeout(() => {action_box.style.top = "-100px";}, 1);
+            setTimeout(() => {action_box.innerHTML = ""}, 100);
+            overlay.removeEventListener('click');
+        })
+
     }
 }
 
 // header
-let header = document.createElement('header');
+const header = document.createElement('header');
 header.classList = "glow f_row"
 header.innerHTML = `
 
@@ -115,7 +127,7 @@ header.innerHTML = `
 
     <vr></vr>
 
-    <div id="header_top_bar_status">
+    <div class="f_col" id="header_top_bar_status">
         <p onclick="alert('File renaming is not available yet')">Unnamed</p>
         <p onclick="alert('File saving is not available yet')">Unsaved document</p>
     </div>
@@ -137,13 +149,17 @@ header.innerHTML = `
 // main 
 const main = document.createElement('main');
 main.classList = "f_col"
-main.innerHTML = `<p>Test</p>`
 
 // action box
 const action_box = document.createElement('div');
 action_box.id = "action_box";
 
+// hoverbg
+const overlay = document.createElement('div');
+overlay.id = "overlay";
+
 // insert values
 document.body.appendChild(action_box);
+document.body.appendChild(overlay);
 document.body.appendChild(header);
 document.body.appendChild(main);

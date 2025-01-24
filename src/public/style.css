@@ -7,7 +7,7 @@
 
     font-family: sans-serif;
 
-    transition: background-color 0.1s;
+    transition: background-color 0.25s;
 
     .glow {
         background-color: #d6d6d6;
@@ -23,6 +23,11 @@
         flex-direction: column;
     }
 
+    .clicked {
+        background-color: #1fe1ff;
+        border: solid 1px #000 !important;
+    }
+
     vr {
         border-left: 1px solid #9a9a9a;
         height: 80%;
@@ -35,7 +40,7 @@
 
         padding: 5px;
 
-        width: 200px;
+        width: 150px;
         height: fit-content;
 
         display: none;
@@ -60,10 +65,8 @@
             border-radius: 5px;
 
             &:hover {
-
                 background-color: hsl(188, 100%, 56%);
                 cursor: pointer;
-
             }
 
         }
@@ -95,6 +98,10 @@ html {
 
     body {
 
+        opacity: 1;
+    
+        transition: opacity 0.4s;
+
         header {
 
             position: fixed;
@@ -109,14 +116,11 @@ html {
             
             z-index: 10;
 
-            h1 {
-                padding: 0.1em;
-                
-            }
+            h1 { padding: 0.1em; }
 
             #header_top_bar_status {
 
-                width: 15%;
+                width: 10%;
 
                 align-items: center;
 
@@ -161,7 +165,7 @@ html {
 
                     p {
 
-                        padding: 0 1%;
+                        padding: 0 0.5%;
 
                         border-radius: 5px;
 
@@ -185,9 +189,57 @@ html {
 
                     width: 100%;
 
-                    p {
+                    div {
 
-                        padding: 0 1%;
+                        padding: 0 0.5%;
+
+                        border-radius: 5px;
+
+                        &:hover {
+                            background-color: #1fe1ff;
+                            cursor: pointer;
+                        }
+
+                        &.document_toggle {
+                            border: solid 1px #0000;
+                        }
+
+                        &#action_setcolorfont, &#action_setcolorback {
+                            display: flex;
+                            flex-direction: row;
+                            align-items: center;
+
+                            p {
+                                flex-basis: 105%;
+                            }
+
+                        }
+
+                        &#action_setcolorfont_box {
+                            margin: 0 2px;
+
+                            height: 12px;
+                            width: 12px;
+
+                            background-color: #000;
+
+                            border: solid 1px #555;
+
+                            border-radius: 0px;
+                        }
+
+                        &#action_setcolorback_box {
+                            margin: 0 2px;
+
+                            height: 12px;
+                            width: 12px;
+
+                            background-color: #0000;
+
+                            border: solid 1px #555;
+
+                            border-radius: 0px;
+                        }
 
                     }
 

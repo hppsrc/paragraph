@@ -1,10 +1,22 @@
-const version = "0.1.6-alpha";
+// TODO JS DEV OPTION
+// TODO TOGGLE DARK MODE
+
+const version = "1.0.0";
 const build = "250127181";
 const git_branch = "dev";
 
 // vars
 const buttons_document = document.getElementsByClassName("document_action");
 const buttons_toggle = document.getElementsByClassName("document_toggle");
+
+const text_welcome = `Hi!
+
+Thank you for using paragraph
+
+This is a simple project for now but I'm looking forward to make it grow.
+
+- Hppsrc
+`
 
 // definitions
 menus = {
@@ -29,16 +41,20 @@ menus = {
 					`, 1)
 			},
 		},
-		// {
-		// 	name: "Open",
-		// 	disable: true,
-		// 	action: null,
-		// },
-		// {
-		// 	name: "Save",
-		// 	disable: true,
-		// 	action: null,
-		// },
+		{
+			name: "Open file",
+			disable: false,
+			action: function () {
+				fileInput.click()
+			}
+		},
+		{
+			name: "Save file",
+			disable: false,
+			action: function () {
+				save_file()
+			},
+		},
 		// {
 		// 	name: "Export",
 		// 	disable: true,
@@ -74,6 +90,13 @@ menus = {
 	],
 	helpMenu: [
 		{
+			name: "Welcome",
+			disable: false,
+			action: function () {
+				sheet.value = text_welcome;
+			}
+		},
+		{
 			name: "News",
 			disable: false,
 			action: function () {
@@ -82,7 +105,7 @@ menus = {
 				<hr>
 
 				<b><p>${version}</p></b>
-				<small>- Main \"sheet\" added to the program!</small>
+				<small>- First public version to be considered stable!</small>
 
 				<hr>
 				<div class="option_html"
@@ -108,7 +131,11 @@ menus = {
 				<p>Paragraph is a simple word proccesor made on JavaScript</p>
 				<b><small> Version: ${version} (${build+" "+git_branch})</small></b>
 				<hr>
-				<div class="option_html" onclick="location.reload()"><a href='https://github.com/hppsrc/paragraph'>Check Github Repo</a></div>
+				<div class="option_html">
+					<a href='https://github.com/hppsrc/paragraph'
+					   target="_blank"
+					   rel="noopener noreferrer">Check Github Repo</a>
+				</div>
 				<div class="option_html"
 				onclick="
 					setTimeout(() => { overlay.style.opacity = '0'; }, 0);
@@ -198,12 +225,34 @@ function show_action(valueArg, action) {
 	}
 }
 
+function load_file() {
+
+}
+
+function save_file() {
+
+	const blob = new Blob([sheet.value], { type: 'text/plain' });
+
+	const a_ = document.createElement('a');
+	a_.href = URL.createObjectURL(blob);
+	a_.download = 'file.txt';
+
+	a_.style.display = 'none';
+	document.body.appendChild(a_);
+	a_.click();
+
+	document.body.removeChild(a_);
+
+}
+
 // header
 const header = document.createElement("header");
 header.classList = "glow f_row";
 header.innerHTML = `
 
     <h1 onclick="console.log('Para :)')">Pg</h1>
+
+	<input type="file" id="fileInput" style="display: none;" accept=".txt">
 
     <vr></vr>
 
@@ -236,6 +285,7 @@ header.innerHTML = `
 // main
 const main = document.createElement("main");
 main.innerHTML = `
+
 	<!--div id="sheet" contenteditable="true">
 		Text
 	</div-->
@@ -260,6 +310,28 @@ document.body.appendChild(main);
 document.addEventListener("DOMContentLoaded", () => {
 
 	const sheet = document.getElementById("sheet");
+
+    let fileInput = document.getElementById('fileInput');
+
+    fileInput.addEventListener("change", function(e) {
+
+        const file = e.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+
+            reader.readAsText(file);
+
+            reader.onload = function(e) {
+                sheet.value = e.target.result;
+            };
+
+            reader.onerror = function(e) {
+                console.error("Error:", e.target.error);
+            };
+        }
+
+	})
 
 	// sheet.addEventListener("focusin", () => {
 	// 	sheet.textContent = sheet.innerHTML.replace(/<br\s*[/]?>/gi, "\n");

@@ -56,16 +56,33 @@
 
 		transition: top 0.25s, left 0.1s;
 
+		#input {
+			padding: 5px;
+
+			border: none;
+			border-radius: 10px;
+			outline: none;
+
+			resize: none;
+		}
+
 		div {
 			padding: 1px;
 
 			border-radius: 5px;
 
+			&.hr {
+				background-color: #9a9a9a;
+				padding: 0px;
+				margin: 5px 0;
+				height: 1px;
+			}
+
 			&.option_html::before {
 				content: "· ";
 			}
 
-			&:hover {
+			&:hover:not(.hr) {
 				background-color: hsl(188, 100%, 56%);
 				cursor: pointer;
 			}
@@ -87,12 +104,12 @@
 		z-index: 8;
 
 		transition: opacity 0.1s;
+
 	}
 }
 
 html {
 	body {
-
 		header {
 			position: fixed;
 
@@ -113,10 +130,16 @@ html {
 			#header_top_bar_status {
 				width: 10%;
 
+				padding: 0 0.5%;
+
 				align-items: center;
 
+				transition: width 0.2s;
+
 				p {
-					padding: 0 2%;
+					padding: 0 0.5%;
+
+					width: 100%;
 
 					font-style: italic;
 					font-size: small;
@@ -153,6 +176,12 @@ html {
 						padding: 0 0.5%;
 
 						border-radius: 5px;
+
+						&#dev_menu {
+							display: none;
+
+							background-color: #ff77;
+						}
 
 						&:hover {
 							background-color: #bbb;

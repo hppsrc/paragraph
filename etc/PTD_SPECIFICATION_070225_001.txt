@@ -1,0 +1,107 @@
+Paragraph Text Document (.ptd) File Format Specification
+Version: 1.0 alpha (Draft 070225_001)
+
+This document outlines the specification for the Paragraph Text Document (.ptd) file format,
+designed for use with the Paragraph text editor application.
+
+A .ptd file is a ZIP archive containing the following internal components:
+
+1.  meta.info:  Stores metadata about the document in JSON format.
+2.  document.xml: Stores the main document content and formatting in XML format.
+
+---
+
+1.  meta.info (Metadata File)
+
+	Format: JSON.
+
+	Purpose:  Contains descriptive metadata about the Paragraph Text Document.
+				This information is intended for document management, versioning, and application-specific settings.
+
+	Required Fields:
+
+		- documentTitle (String):
+			The user-defined title of the document. Example: "My Important Report".
+
+		- ptdFormatVersion (Number):
+			Version number of the .ptd file format specification.  Example: 1.0.
+			This field ensures compatibility and versioning control across different application versions.
+
+		- ptdTypeVersion (String):
+			Indicates the development or release stage of the Paragraph application version that created this document.
+			Examples: "alpha", "beta", "stable".
+
+	Optional Fields (to be considered for future versions):
+
+		- author (String):
+			Name of the document author.
+
+		- creationDate (String):
+			Date and time when the document was initially created.
+
+		- modificationDate (String):
+			Date and time of the last document modification (save operation).
+
+		- documentVersion (Integer):
+			Counter that increments each time the document is loaded into the Paragraph editor and subsequently saved.
+			This tracks the number of "editing sessions" rather than every single save operation.
+			The counter should increment by one upon each load-and-save cycle.
+			Example:  Starts at 1 for a new document. Increments to 2 after the first load and save, then to 3 after the next load and save, and so on.
+
+	Example JSON structure for meta.info:
+
+	```json
+	{
+		"documentTitle": "My Presentation File",
+		"ptdFormatVersion": 3.2,
+		"ptdTypeVersion": "stable",
+		"author": "Hppsrc",
+		"creationDate": "2025-02-07 09:00:00",
+		"modificationDate": "2025-02-07 17:00:00",
+		"documentVersion": 3
+	}
+	```
+
+---
+
+2.  document.xml (Document Content File)
+
+	Format: XML.
+
+	Purpose: Contains the primary content of the Paragraph Text Document, including:
+				- Textual content itself.
+				- Text formatting (e.g., bold, italics, font styles, sizes, colors).
+				- Document structure (e.g., paragraphs, headings, lists).
+				- Potentially, in future versions, references to embedded media.
+
+	Structure and Tags:
+		The detailed XML schema for document.xml will be defined in a separate, more detailed specification document.
+		However, it is envisioned to use a structured XML format that allows for:
+
+		- Semantic markup of document elements (e.g., <paragraph>, <heading level="1">, <list type="bulleted">).
+		- Attribute-based styling for text formatting (e.g., <bold>, <italic>, <font family="Arial" size="12pt">).
+		- Clear separation of content and presentation/style.
+
+	Example (Illustrative - Simplified XML structure for document.xml):
+
+	```xml
+	<?xml version="1.0" encoding="UTF-8"?>
+	<document>
+		<metadata>
+			<formatVersion>1.0</formatVersion> <!- Format version of document.xml structure ->
+		</metadata>
+		<body>
+			<paragraph style="normal">
+				This is the first <bold>paragraph</bold> of the document.
+			</paragraph>
+			<paragraph style="normal">
+				Here is another paragraph with <italic>italicized</italic> text.
+			</paragraph>
+			<heading level="2">Section Title</heading>
+			<list type="bulleted">
+				<item>First bullet point</item>
+				<item>Second bullet point</item>
+			</list>
+		</body>
+	</document>
+	```

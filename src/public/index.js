@@ -1,22 +1,23 @@
-// TODO JS DEV OPTION
 // TODO TOGGLE DARK MODE
 
-const version = "1.0.0";
-const build = "250127181";
+const version = "1.1.0-alpha";
+const build = "250207161";
 const git_branch = "dev";
 
 // vars
 const buttons_document = document.getElementsByClassName("document_action");
 const buttons_toggle = document.getElementsByClassName("document_toggle");
 
-const text_welcome = `Hi!
+// PTD SPECIFICATION 070225_001
+const meta_info = {
 
-Thank you for using paragraph
+	"documentTitle": "Unnamed",
+	"ptdFormatVersion" : "1.0",
+	"ptdTypeVersion" : "alpha",
 
-This is a simple project for now but I'm looking forward to make it grow.
-
-- Hppsrc
-`
+};
+const document_info = [];
+const saved = false;
 
 // definitions
 menus = {
@@ -30,30 +31,16 @@ menus = {
 					<hr>
 					<p>Are you sure?<br>Any unsaved change will be descarted...</p>
 					<hr>
-					<div class="option_html" onclick="location.reload()">Yes</div>
-					<div class="option_html"
-					onclick="
-						setTimeout(() => { overlay.style.opacity = '0'; }, 0);
-						setTimeout(() => { overlay.style.display = 'none'; }, 100);
-						setTimeout(() => { action_box.style.top = '-500px'; }, 0);
-					"
-					>Cancel</div>
-					`, 1)
+					<div class="option_html" onclick="location.reload()" >Yes</div>
+					<div class="option_html" onclick="hide_action()" >Cancel</div>
+				`, 1)
 			},
 		},
 		{
-			name: "Open file",
-			disable: false,
-			action: function () {
-				fileInput.click()
-			}
+			name: "Open file", disable: false, action: function () { fileInput.click() }
 		},
 		{
-			name: "Save file",
-			disable: false,
-			action: function () {
-				save_file()
-			},
+			name: "Save file", disable: false, action: function () { save_file() }
 		},
 		// {
 		// 	name: "Export",
@@ -63,29 +50,19 @@ menus = {
 	],
 	editMenu: [
 		{
-			name: "Undo",
-			disable: true,
-			action: null,
+			name: "Undo", disable: true, action: null
 		},
 		{
-			name: "Redo",
-			disable: true,
-			action: null,
+			name: "Redo", disable: true, action: null
 		},
 		{
-			name: "Cut",
-			disable: true,
-			action: null,
+			name: "Cut", disable: true, action: null
 		},
 		{
-			name: "Copy",
-			disable: true,
-			action: null,
+			name: "Copy", disable: true, action: null
 		},
 		{
-			name: "Paste",
-			disable: true,
-			action: null,
+			name: "Paste", disable: true, action: null
 		},
 	],
 	helpMenu: [
@@ -93,7 +70,15 @@ menus = {
 			name: "Welcome",
 			disable: false,
 			action: function () {
-				sheet.value = text_welcome;
+				sheet.value = `Hi!
+
+Thank you for using paragraph
+
+Paragraph is currently a simple project, but I plan to expand its features in the future.
+
+Enable "Dev tools" at "Help > About"
+
+- Hppsrc`;
 			}
 		},
 		{
@@ -101,60 +86,65 @@ menus = {
 			disable: false,
 			action: function () {
 				show_action(`
-				<h3>News</h3>
-				<hr>
-
-				<b><p>${version}</p></b>
-				<small>- First public version to be considered stable!</small>
-
-				<hr>
-				<div class="option_html"
-				onclick="
-					setTimeout(() => { overlay.style.opacity = '0'; }, 0);
-					setTimeout(() => { overlay.style.display = 'none'; }, 100);
-					setTimeout(() => { action_box.style.top = '-500px'; }, 0);
-				"
-				>Ok!</div>
+					<h3>News</h3>
+					<hr>
+					<b><p>${version}</p></b>
+					<small>- First public version to be considered stable!</small>
+					<hr>
+					<div class="option_html" onclick="hide_action()" >Ok!</div>
 				`,1)
 			}
 		},
 		{
-			name: "hr", disable: 0, action: 0
+			name: "hr"
 		},
 		{
 			name: "About",
 			disable: false,
 			action: function () {
 				show_action(`
-				<h3>About Paragraph</h3>
-				<hr>
-				<p>Paragraph is a simple word proccesor made on JavaScript</p>
-				<b><small> Version: ${version} (${build+" "+git_branch})</small></b>
-				<hr>
-				<div class="option_html">
-					<a href='https://github.com/hppsrc/paragraph'
-					   target="_blank"
-					   rel="noopener noreferrer">Check Github Repo</a>
-				</div>
-				<div class="option_html"
-				onclick="
-					setTimeout(() => { overlay.style.opacity = '0'; }, 0);
-					setTimeout(() => { overlay.style.display = 'none'; }, 100);
-					setTimeout(() => { action_box.style.top = '-500px'; }, 0);
-				"
-				>Cancel</div>
+					<h3>About Paragraph</h3>
+					<hr>
+					<p>Paragraph is a simple word proccesor made on JavaScript</p>
+					<b><small> Version: ${version}</small></b>
+					<hr>
+					<div class="option_html" >
+						<a href='https://github.com/hppsrc/paragraph' target="_blank" rel="noopener noreferrer" onclick="hide_action()" >Check Github Repo</a>
+					</div>
+					<div class="option_html" onclick="
+						hide_action();
+						enable_para_dev();
+					" >Enabled dev tools</div>
+					<div class="option_html" onclick="hide_action()" >Cancel</div>
 				`,1)
 			}
 		},
+	],
+	devMenu: [
+		{
+			name: `Version: ${version} (${build+" "+git_branch})`, disable: true, action: null
+		},
+		{
+			name: "hr"
+		},
+		{
+			name: "Toggle autosave", disable: true, action: null
+		},
+		{
+			name: "Load latest JS", disable: true, action: null
+		},
+		{
+			name: "Show fake dom", disable: true, action: null
+		},
+		{
+			name: "Print edit-log", disable: true, action: null
+		}
 	],
 };
 
 menus_extra = {
 	font: ["serif", "sans-serif", "monospace", "cursive", "fantasy"],
 };
-
-// 0 menu list
-// 1 set html
 
 // functions
 function show_action(valueArg, action) {
@@ -168,7 +158,12 @@ function show_action(valueArg, action) {
 		const rect = valueArg.getBoundingClientRect();
 
 		action_box.style.left = `${rect.x}px`;
-		action_box.style.width = '100px';
+		action_box.style.width = '150px';
+		action_box.style.transform = 'translate(0%, 0%)';
+
+        action_box.style.borderRadius = '0';
+        action_box.style.borderBottomRightRadius = '10px';
+        action_box.style.borderBottomLeftRadius = '10px';
 
 		overlay.style.display = "block";
 
@@ -176,15 +171,13 @@ function show_action(valueArg, action) {
 		setTimeout(() => { overlay.style.opacity = "1"; }, 0);
 
 		overlay.addEventListener("click", () => {
-			setTimeout(() => { overlay.style.opacity = "0"; }, 0);
-			setTimeout(() => { overlay.style.display = "none"; }, 100);
-			setTimeout(() => { action_box.style.top = "-500px"; }, 0);
+			hide_action();
 		});
 
 		values.forEach((item) => {
 			let div = document.createElement("div");
 			if (item.name == "hr") {
-				div.innerHTML = "<hr>";
+				div.classList += " hr"
 			} else {
 				div.textContent = item.name;
 
@@ -193,9 +186,7 @@ function show_action(valueArg, action) {
 					div.style.color = "#777";
 				} else {
 					div.addEventListener("click", () => {
-						setTimeout(() => { overlay.style.opacity = "0"; }, 0);
-						setTimeout(() => { overlay.style.display = "none"; }, 100);
-						setTimeout(() => { action_box.style.top = "-500px"; }, 0);
+						hide_action();
 						item.action();
 					});
 				}
@@ -205,44 +196,114 @@ function show_action(valueArg, action) {
 		});
 
 	} else {
+
 		setTimeout(() => {
+
 			action_box.innerHTML = valueArg;
 
 			overlay.style.display = "block";
 			action_box.style.width = '300px';
 
-			setTimeout(() => { action_box.style.top = "50px"; }, 0);
+			setTimeout(() => { action_box.style.top = "50%"; }, 0);
+			setTimeout(() => { action_box.style.left = "50%"; }, 0);
 			setTimeout(() => { overlay.style.opacity = "1"; }, 0);
+			action_box.style.transform = 'translate(-50%, -50%)';
+
+            action_box.style.borderBottomRightRadius = '0px';
+            action_box.style.borderBottomLeftRadius = '0px';
+            action_box.style.borderRadius = '10px';
 
 			overlay.addEventListener("click", () => {
-				setTimeout(() => { overlay.style.opacity = "0"; }, 0);
-				setTimeout(() => { overlay.style.display = "none"; }, 100);
-				setTimeout(() => { action_box.style.top = "-500px"; }, 0);
+				hide_action();
 			});
 
-			// alert(valueArg)
 		}, 150);
 	}
 }
 
-function load_file() {
+function save_file() {
+
+	show_action(`
+		<h3>Save file</h3>
+		<hr>
+		<p>Temporarily disabled</p>
+		<hr>
+		<div class="option_html" onclick="hide_action()" >Cancel</div>
+	`,1)
+
+	fetch('/api/file_download', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(meta_info)
+	})
+	.then(response => {
+		if (!response.ok) {
+			throw new Error(`Error: ${response.status}`);
+		}
+		return response.json();
+	})
+	.then(data => { console.log('Server response:', data); })
+	.catch(error => { console.error('Error:', error); });
 
 }
 
-function save_file() {
+function enable_para_dev() {
+	document.getElementById("dev_menu").style.display = "block";
+	show_action(`
+		<h3>Developer options enabled</h3>
+		<hr>
+		<p>Reload to disable</p>
+		<hr>
+		<div class="option_html" onclick="hide_action();" >Ok!</div>
+	`,1)
+}
 
-	const blob = new Blob([sheet.value], { type: 'text/plain' });
+function hide_action() {
+	setTimeout(() => { overlay.style.opacity = '0'; }, 0);
+	setTimeout(() => { overlay.style.display = 'none'; }, 100);
+	setTimeout(() => { action_box.style.top = '-500px'; }, 0);
+}
 
-	const a_ = document.createElement('a');
-	a_.href = URL.createObjectURL(blob);
-	a_.download = 'file.txt';
+function wrapper_action(arg) {
+	if (arg == 1) {
+		show_action(`
+			<h3>Set new file name</h3>
+			<hr>
+			<p>Current name: ${meta_info.documentTitle}</p>
+			<textarea id="input" maxlength="30" placeholder="Type your text here..." ></textarea>
+			<hr>
+			<div class="option_html" onclick="
+				hide_action();
+				if ( input.value != '' ) {
+					meta_info.documentTitle = input.value;
+					header_top_bar_status_name.title = meta_info.documentTitle;
+					header_top_bar_status_name.textContent = 'Name: ' + (meta_info.documentTitle).slice(0,8).concat('...')
+				} else {
+					wrapper_action(3)
+				}
+			" >Rename</div>
+			<div class="option_html" onclick="hide_action()" >Cancel</div>
+		`,1)
+	} else if (arg == 2) {
+		show_action(`
+			<h3>Autosave</h3>
+			<hr>
+			<p>Autosave is not available yet.</p>
+			<hr>
+			<div class="option_html" onclick="hide_action()" >Cancel</div>
+		`,1)
 
-	a_.style.display = 'none';
-	document.body.appendChild(a_);
-	a_.click();
-
-	document.body.removeChild(a_);
-
+	} else if (arg == 3) {
+		show_action(`
+			<h3>Set new file name</h3>
+			<hr>
+			<p>Can't set a empty name.</p>
+			<hr>
+			<div class="option_html" onclick="hide_action();" >Ok!</div>
+		`,1)
+	}
 }
 
 // header
@@ -256,20 +317,28 @@ header.innerHTML = `
 
     <vr></vr>
 
-    <!--div class="f_col" id="header_top_bar_status">
-        <p onclick="alert('File renaming is not available yet')">Unnamed</p>
-        <p onclick="alert('File saving is not available yet')">Unsaved document</p>
+    <div class="f_col" id="header_top_bar_status">
+
+        <p id="header_top_bar_status_name" onclick="wrapper_action(1)" >Name: ${(meta_info.documentTitle).slice(0,10).concat("...")}</p>
+	    <!--p id="header_top_bar_status_save" onclick="wrapper_action(2)" >Autosave disabled</p-->
+
     </div>
 
-    <vr></vr-->
+    <vr></vr>
 
     <div id="header_top_bar_actions">
+
         <div id="header_top_bar_actions_select">
+
             <p class="action" onclick="show_action(this, 0)">File</p>
             <p class="action" onclick="show_action(this, 0)">Help</p>
             <!--p class="action" onclick="show_action(this, 0)">Edit</p-->
+            <p id="dev_menu" class="action" onclick="show_action(this, 0)">Dev</p>
+
         </div>
+
         <!--div id="header_top_bar_actions_do">
+
             <div class="document_action" onclick="show_action(this, 1)" id="action_setfont"><p> Font: <span style="font-family: Serif"> Serif </span> </p> </div>
             <div class="document_action" onclick="show_action(this, 1)" id="action_setsize"><p> Size: 12px </p> </div>
             <div class="document_action" onclick="show_action(this, 1)" onclick="show_action(this, 0)" id="action_setcolorfont"><p> Font <br> </p><div id="action_setcolorfont_box"> </div> </div>
@@ -277,7 +346,9 @@ header.innerHTML = `
             <div class="document_action" id="action_black"><b> N </b> </div>
             <div class="document_action" id="action_italic"><i> K </i> </div>
             <div class="document_action" id="action_underline"><span style="text-decoration: underline;"> U </span> </div>
+
 		</div-->
+
     </div>
 
 `;
@@ -286,10 +357,9 @@ header.innerHTML = `
 const main = document.createElement("main");
 main.innerHTML = `
 
-	<!--div id="sheet" contenteditable="true">
-		Text
-	</div-->
+	<!--div id="sheet" contenteditable="true"> Text </div-->
 	<textarea id="sheet" placeholder="Type your text here..." ></textarea>
+
 `;
 
 // action box
@@ -333,12 +403,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	})
 
-	// sheet.addEventListener("focusin", () => {
-	// 	sheet.textContent = sheet.innerHTML.replace(/<br\s*[/]?>/gi, "\n");
-	// })
+    if (window.innerWidth < 768) {
 
-	// sheet.addEventListener("focusout", () => {
-	// 	sheet.innerHTML = sheet.textContent.replace(/\n/g, "<b>");
-	// })
+        alert("This page is not designed for small screens. Proper UI/UX is not guaranteed, please wait for a future update!");
+
+    }
 
 })

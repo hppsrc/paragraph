@@ -1,22 +1,25 @@
-// TODO TOGGLE DARK MODE
-
-const version = "1.1.0-alpha";
-const build = "250207161";
+const version = "1.1.1-alpha";
+const build = "250208161";
 const git_branch = "dev";
 
 // vars
 const buttons_document = document.getElementsByClassName("document_action");
 const buttons_toggle = document.getElementsByClassName("document_toggle");
 
-// PTD SPECIFICATION 070225_001
+// PTD SPECIFICATION 002
 const meta_info = {
 
 	"documentTitle": "Unnamed",
-	"ptdFormatVersion" : "1.0",
+	"ptdSPCVersion" : "002",
+	"ptdFormatVersion" : "1.1",
 	"ptdTypeVersion" : "alpha",
 
 };
-const document_info = [];
+
+const document_info = {
+	"content" : ""
+};
+
 const saved = false;
 
 // definitions
@@ -37,7 +40,15 @@ menus = {
 			},
 		},
 		{
-			name: "Open file", disable: false, action: function () { fileInput.click() }
+			name: "Open file", disable: false, action: function () {
+				show_action(`
+					<h3>Open file</h3>
+					<hr>
+					<p>Temporarily disabled.</p>
+					<hr>
+					<div class="option_html" onclick="hide_action()" >Cancel</div>
+				`,1)
+			}
 		},
 		{
 			name: "Save file", disable: false, action: function () { save_file() }
@@ -82,18 +93,7 @@ Enable "Dev tools" at "Help > About"
 			}
 		},
 		{
-			name: "News",
-			disable: false,
-			action: function () {
-				show_action(`
-					<h3>News</h3>
-					<hr>
-					<b><p>${version}</p></b>
-					<small>- First public version to be considered stable!</small>
-					<hr>
-					<div class="option_html" onclick="hide_action()" >Ok!</div>
-				`,1)
-			}
+			name: "News", disable: false, action: function () { show_news() }
 		},
 		{
 			name: "hr"
@@ -221,31 +221,76 @@ function show_action(valueArg, action) {
 	}
 }
 
+function show_news() {
+	show_action(`
+		<h3>News</h3>
+		<hr>
+		<b><p>${version}</p></b>
+		<small>- First public version to be considered stable!</small>
+		<hr>
+		<div class="option_html" onclick="hide_action()" >Ok!</div>
+	`,1)
+}
+
 function save_file() {
 
-	show_action(`
-		<h3>Save file</h3>
-		<hr>
-		<p>Temporarily disabled</p>
-		<hr>
-		<div class="option_html" onclick="hide_action()" >Cancel</div>
-	`,1)
+	if ( sheet.value != '' ) {
 
-	fetch('/api/file_download', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(meta_info)
-	})
-	.then(response => {
-		if (!response.ok) {
-			throw new Error(`Error: ${response.status}`);
-		}
-		return response.json();
-	})
-	.then(data => { console.log('Server response:', data); })
-	.catch(error => { console.error('Error:', error); });
+		show_action(`
+			<h3>Save file</h3>
+			<hr>
+			<p>Preparing download.</p>
+		`,1)
+
+		document_info.content = sheet.value
+
+		fetch('/api/file_download', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ meta_info: meta_info, document_info: document_info })
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw new Error(`Error: ${response.status}`);
+			}
+			return response.blob();
+		})
+		.then(blob => {
+
+			setTimeout(() => {
+
+				const url = URL.createObjectURL(blob); // Create Blob URL
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = meta_info.documentTitle + ".txt";
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+				hide_action();
+
+
+			}, 1000);
+
+			// console.log('Server response:', data.msg);
+
+			})
+		.catch(error => { console.error('Error:', error); });
+
+	} else {
+
+		show_action(`
+			<h3>Save file</h3>
+			<hr>
+			<p>File is empty.</p>
+			<hr>
+			<div class="option_html" onclick="hide_action()" >Cancel</div>
+		`,1)
+
+
+	}
 
 }
 
@@ -304,6 +349,13 @@ function wrapper_action(arg) {
 			<div class="option_html" onclick="hide_action();" >Ok!</div>
 		`,1)
 	}
+}
+
+
+// localStorage
+if (localStorage.getItem("build") != build) {
+    localStorage.setItem("build", build);
+    show_news();
 }
 
 // header

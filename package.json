@@ -24,6 +24,7 @@
     "start": "node src/server.js"
   },
   "dependencies": {
+    "archiver": "^7.0.1",
     "express": "^4.21.2"
   }
 }

@@ -1,8 +1,10 @@
 const fs = require('node:fs/promises');
 const express = require('express');
+const archiver = require('archiver');
+
+const port = 3000;
 const path = require('path');
 const app = express();
-const port = 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
@@ -26,9 +28,9 @@ app.post('/api/file_download', (req, res) => {
 
 			// if (content.startsWith('"') && content.endsWith('"')) { clean = content.substring(1, content.length - 1); }
 
-			const filePath = path.join('.', 'src', 'public' , 'meta.json');
+			const filePath = path.join('.' , 'meta.json');
 			await fs.writeFile(filePath, content_meta, { flag: 'w' }, err => { res.json({ msg: `Error: "${err}"` }) });
-			const filePath_doc = path.join('.', 'src', 'public' , 'document.json');
+			const filePath_doc = path.join('.', 'document.json');
 			await fs.writeFile(filePath_doc, content_document, { flag: 'w' }, err => { res.json({ msg: `Error: "${err}"` }) });
 
 			// res.setHeader('Content-Disposition', 'attachment; filename="document.txt"');

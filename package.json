@@ -1,6 +1,6 @@
 {
   "name": "paragraph",
-  "version": "0.1.0-alpha",
+  "version": "2.0.0",
   "description": "Simple text processor made in Vanilla JavaScript.",
   "keywords": [
     "office",

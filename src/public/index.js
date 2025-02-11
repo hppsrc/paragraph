@@ -1,10 +1,10 @@
-const version = "1.1.1-alpha";
-const build = "250208161";
+const version = "2.0.0-alpha_feat(save)";
+const build = "250211091";
 const git_branch = "dev";
 
 // vars
 const buttons_document = document.getElementsByClassName("document_action");
-const buttons_toggle = document.getElementsByClassName("document_toggle");
+// const buttons_toggle = document.getElementsByClassName("document_toggle");
 
 // PTD SPECIFICATION 002
 const meta_info = {
@@ -83,11 +83,11 @@ menus = {
 			action: function () {
 				sheet.value = `Hi!
 
-Thank you for using paragraph
+Thank you for using paragraph!
 
 Paragraph is currently a simple project, but I plan to expand its features in the future.
 
-Enable "Dev tools" at "Help > About"
+Enable "Dev tools" at "Help > About".
 
 - Hppsrc`;
 			}
@@ -105,7 +105,7 @@ Enable "Dev tools" at "Help > About"
 				show_action(`
 					<h3>About Paragraph</h3>
 					<hr>
-					<p>Paragraph is a simple word proccesor made on JavaScript</p>
+					<p>Paragraph is a simple word proccesor made on JavaScript.</p>
 					<b><small> Version: ${version}</small></b>
 					<hr>
 					<div class="option_html" >
@@ -127,18 +127,18 @@ Enable "Dev tools" at "Help > About"
 		{
 			name: "hr"
 		},
-		{
-			name: "Toggle autosave", disable: true, action: null
-		},
+		// {
+		// 	name: "Toggle autosave", disable: true, action: null
+		// },
 		{
 			name: "Load latest JS", disable: true, action: null
 		},
-		{
-			name: "Show fake dom", disable: true, action: null
-		},
-		{
-			name: "Print edit-log", disable: true, action: null
-		}
+		// {
+		// 	name: "Show fake dom", disable: true, action: null
+		// },
+		// {
+		// 	name: "Print edit-log", disable: true, action: null
+		// }
 	],
 };
 
@@ -161,9 +161,9 @@ function show_action(valueArg, action) {
 		action_box.style.width = '150px';
 		action_box.style.transform = 'translate(0%, 0%)';
 
-        action_box.style.borderRadius = '0';
-        action_box.style.borderBottomRightRadius = '10px';
-        action_box.style.borderBottomLeftRadius = '10px';
+		action_box.style.borderRadius = '0';
+		action_box.style.borderBottomRightRadius = '10px';
+		action_box.style.borderBottomLeftRadius = '10px';
 
 		overlay.style.display = "block";
 
@@ -209,9 +209,9 @@ function show_action(valueArg, action) {
 			setTimeout(() => { overlay.style.opacity = "1"; }, 0);
 			action_box.style.transform = 'translate(-50%, -50%)';
 
-            action_box.style.borderBottomRightRadius = '0px';
-            action_box.style.borderBottomLeftRadius = '0px';
-            action_box.style.borderRadius = '10px';
+			action_box.style.borderBottomRightRadius = '0px';
+			action_box.style.borderBottomLeftRadius = '0px';
+			action_box.style.borderRadius = '10px';
 
 			overlay.addEventListener("click", () => {
 				hide_action();
@@ -226,7 +226,11 @@ function show_news() {
 		<h3>News</h3>
 		<hr>
 		<b><p>${version}</p></b>
-		<small>- First public version to be considered stable!</small>
+		<small>- Generation and processing of .ptd file.</small>
+		<small>- Mayor server side changes.</small>
+		<small>- Code clean up.</small>
+		<small>- UI enhancements.</small>
+		<small>- Added Dev options.</small>
 		<hr>
 		<div class="option_html" onclick="hide_action()" >Ok!</div>
 	`,1)
@@ -261,10 +265,10 @@ function save_file() {
 
 			setTimeout(() => {
 
-				const url = URL.createObjectURL(blob); // Create Blob URL
+				const url = URL.createObjectURL(blob);
 				const a = document.createElement('a');
 				a.href = url;
-				a.download = meta_info.documentTitle + ".txt";
+				a.download = meta_info.documentTitle + ".ptd";
 				document.body.appendChild(a);
 				a.click();
 				document.body.removeChild(a);
@@ -299,7 +303,7 @@ function enable_para_dev() {
 	show_action(`
 		<h3>Developer options enabled</h3>
 		<hr>
-		<p>Reload to disable</p>
+		<p>Reload to disable.</p>
 		<hr>
 		<div class="option_html" onclick="hide_action();" >Ok!</div>
 	`,1)
@@ -354,8 +358,8 @@ function wrapper_action(arg) {
 
 // localStorage
 if (localStorage.getItem("build") != build) {
-    localStorage.setItem("build", build);
-    show_news();
+	localStorage.setItem("build", build);
+	show_news();
 }
 
 // header
@@ -363,45 +367,45 @@ const header = document.createElement("header");
 header.classList = "glow f_row";
 header.innerHTML = `
 
-    <h1 onclick="console.log('Para :)')">Pg</h1>
+	<h1 onclick="console.log('Para :)')">Pg</h1>
 
 	<input type="file" id="fileInput" style="display: none;" accept=".txt">
 
-    <vr></vr>
+	<vr></vr>
 
-    <div class="f_col" id="header_top_bar_status">
+	<div class="f_col" id="header_top_bar_status">
 
-        <p id="header_top_bar_status_name" onclick="wrapper_action(1)" >Name: ${(meta_info.documentTitle).slice(0,10).concat("...")}</p>
-	    <!--p id="header_top_bar_status_save" onclick="wrapper_action(2)" >Autosave disabled</p-->
+		<p id="header_top_bar_status_name" onclick="wrapper_action(1)" >Name: ${(meta_info.documentTitle).slice(0,10).concat("...")}</p>
+		<!--p id="header_top_bar_status_save" onclick="wrapper_action(2)" >Autosave disabled</p-->
 
-    </div>
+	</div>
 
-    <vr></vr>
+	<vr></vr>
 
-    <div id="header_top_bar_actions">
+	<div id="header_top_bar_actions">
 
-        <div id="header_top_bar_actions_select">
+		<div id="header_top_bar_actions_select">
 
-            <p class="action" onclick="show_action(this, 0)">File</p>
-            <p class="action" onclick="show_action(this, 0)">Help</p>
-            <!--p class="action" onclick="show_action(this, 0)">Edit</p-->
-            <p id="dev_menu" class="action" onclick="show_action(this, 0)">Dev</p>
+			<p class="action" onclick="show_action(this, 0)">File</p>
+			<p class="action" onclick="show_action(this, 0)">Help</p>
+			<!--p class="action" onclick="show_action(this, 0)">Edit</p-->
+			<p id="dev_menu" class="action" onclick="show_action(this, 0)">Dev</p>
 
-        </div>
+		</div>
 
-        <!--div id="header_top_bar_actions_do">
+		<!--div id="header_top_bar_actions_do">
 
-            <div class="document_action" onclick="show_action(this, 1)" id="action_setfont"><p> Font: <span style="font-family: Serif"> Serif </span> </p> </div>
-            <div class="document_action" onclick="show_action(this, 1)" id="action_setsize"><p> Size: 12px </p> </div>
-            <div class="document_action" onclick="show_action(this, 1)" onclick="show_action(this, 0)" id="action_setcolorfont"><p> Font <br> </p><div id="action_setcolorfont_box"> </div> </div>
-            <div class="document_action" onclick="show_action(this, 1)" id="action_setcolorback"><p> Back <br> </p><div id="action_setcolorback_box"> </div> </div>
-            <div class="document_action" id="action_black"><b> N </b> </div>
-            <div class="document_action" id="action_italic"><i> K </i> </div>
-            <div class="document_action" id="action_underline"><span style="text-decoration: underline;"> U </span> </div>
+			<div class="document_action" onclick="show_action(this, 1)" id="action_setfont"><p> Font: <span style="font-family: Serif"> Serif </span> </p> </div>
+			<div class="document_action" onclick="show_action(this, 1)" id="action_setsize"><p> Size: 12px </p> </div>
+			<div class="document_action" onclick="show_action(this, 1)" onclick="show_action(this, 0)" id="action_setcolorfont"><p> Font <br> </p><div id="action_setcolorfont_box"> </div> </div>
+			<div class="document_action" onclick="show_action(this, 1)" id="action_setcolorback"><p> Back <br> </p><div id="action_setcolorback_box"> </div> </div>
+			<div class="document_action" id="action_black"><b> N </b> </div>
+			<div class="document_action" id="action_italic"><i> K </i> </div>
+			<div class="document_action" id="action_underline"><span style="text-decoration: underline;"> U </span> </div>
 
 		</div-->
 
-    </div>
+	</div>
 
 `;
 
@@ -433,32 +437,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	const sheet = document.getElementById("sheet");
 
-    let fileInput = document.getElementById('fileInput');
+	let fileInput = document.getElementById('fileInput');
 
-    fileInput.addEventListener("change", function(e) {
+	fileInput.addEventListener("change", function(e) {
 
-        const file = e.target.files[0];
+		const file = e.target.files[0];
 
-        if (file) {
-            const reader = new FileReader();
+		if (file) {
+			const reader = new FileReader();
 
-            reader.readAsText(file);
+			reader.readAsText(file);
 
-            reader.onload = function(e) {
-                sheet.value = e.target.result;
-            };
+			reader.onload = function(e) {
+				sheet.value = e.target.result;
+			};
 
-            reader.onerror = function(e) {
-                console.error("Error:", e.target.error);
-            };
-        }
+			reader.onerror = function(e) {
+				console.error("Error:", e.target.error);
+			};
+		}
 
 	})
 
-    if (window.innerWidth < 768) {
+	if (window.innerWidth < 768) {
 
-        alert("This page is not designed for small screens. Proper UI/UX is not guaranteed, please wait for a future update!");
+		alert("This page is not designed for small screens. Proper UI/UX is not guaranteed, please wait for a future update!");
 
-    }
+	}
 
 })

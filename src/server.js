@@ -1,6 +1,8 @@
+const fsf = require('fs');
 const fs = require('node:fs/promises');
 const express = require('express');
 const archiver = require('archiver');
+const crypto = require('crypto');
 
 const port = 3000;
 const path = require('path');
@@ -12,39 +14,46 @@ app.use(express.json());
 app.post('/api/file_download', (req, res) => {
 	const data = req.body;
 
-    // console.log("\n--- NEW DATA ---");
-    // console.log(data);
-    // console.log("--- END DATA ---");
+	// console.log("\n--- NEW DATA ---");
+	// console.log(data);
+	// console.log("--- END DATA ---");
 
 	async function createFile() {
 
 		try {
 
-			const content = JSON.stringify(data);
+			// const content = JSON.stringify(data);
 			const content_meta = JSON.stringify(data.meta_info);
 			const content_document = JSON.stringify(data.document_info);
-			// const content = data.document_info.content;
-			// let clean = content;
 
-			// if (content.startsWith('"') && content.endsWith('"')) { clean = content.substring(1, content.length - 1); }
+			const randomBytes = crypto.randomBytes(9);
+			let dir = 'tmp_'.concat(randomBytes.toString('base64').slice(0, 12).replace(/\//g, '-'));
 
-			const filePath = path.join('.' , 'meta.json');
-			await fs.writeFile(filePath, content_meta, { flag: 'w' }, err => { res.json({ msg: `Error: "${err}"` }) });
-			const filePath_doc = path.join('.', 'document.json');
-			await fs.writeFile(filePath_doc, content_document, { flag: 'w' }, err => { res.json({ msg: `Error: "${err}"` }) });
+			if (!fsf.existsSync(dir)){ fsf.mkdirSync(dir); }
 
-			// res.setHeader('Content-Disposition', 'attachment; filename="document.txt"');
-			// res.setHeader('Content-Type', 'text/plain');
+			await fs.writeFile(path.join('.' , dir ,  'meta.json'), content_meta, { flag: 'w' }, err => { res.json({ msg: `Error: "${err}"` }) });
+			await fs.writeFile(path.join('.', dir ,  'document.json'), content_document, { flag: 'w' }, err => { res.json({ msg: `Error: "${err}"` }) });
 
-			res.send(content);
-			// res.send(clean);
+			const archive = archiver('zip', { zlib: { level: 9 } });
 
-			// res.json({ msg: "Data OK!" });
+			archive.append(fsf.createReadStream(path.join('.' , dir ,  'meta.json')), { name: 'meta.json' });
+			archive.append(fsf.createReadStream(path.join('.' , dir ,  'document.json')), { name: 'document.json' });
+
+			archive.pipe(res)
+
+			return new Promise((resolve, reject) => {
+				archive.on('close', () => {
+					fsf.rmSync(dir, { recursive: true });
+					resolve();
+				});
+				archive.on('error', reject);
+				archive.finalize();
+			});
 
 		} catch (err) {
 
 			res.json({ msg: `Error: "${err}"` });
-		  	console.log(err);
+			console.log(err);
 
 		}
 

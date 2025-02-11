@@ -34,3 +34,4 @@ coverage/
 # Spec
 document.json
 meta.json
+*.zip

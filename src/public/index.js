@@ -1,7 +1,7 @@
 //region GLOBAL VARS
-const version = "2.0.0-alpha_feat(autosave)";
-const build = "2505191701";
-const git_branch = "dev";
+const version = "2.0.0";
+const build = "2505191801";
+const git_branch = "main"
 
 //region DOM ELEMENTS
 // const buttons_document = document.getElementsByClassName("document_action");
@@ -46,12 +46,17 @@ menus = {
 		},
 		{
 			name: "Save file", disable: false, action: function () { save_file() }
+		},
+		{
+			name: "hr"
+		},
+		{
+			name: "Exit",
+			disable: false,
+			action: function () {
+				location.href = "https://github.com/hppsrc"
+			}
 		}
-		// {
-		// 	name: "Export",
-		// 	disable: true,
-		// 	action: null,
-		// },
 	],
 	editMenu: [
 		{
@@ -85,7 +90,7 @@ menus = {
 					<div class="option_html" onclick="
 						const val = parseInt(document.getElementById('input').value, 10);
 						if (!isNaN(val) && val > 0) {
-							autosave_interval = val;
+							autosave_interval = val * 1000;
 							localStorage.setItem('autosave_interval', val);
 							startAutosaveInterval();
 							hide_action();
@@ -101,23 +106,151 @@ menus = {
 	],
 	devMenu: [
 		{
-			name: `Version: ${version} (${build+" "+git_branch})`, disable: true, action: null
+			name: `${version}`, disable: true, action: null
+		},
+		{
+			name: `${build}`, disable: true, action: null
+		},
+		{
+			name: `${git_branch}`, disable: true, action: null
 		},
 		{
 			name: "hr"
 		},
-		// {
-		// 	name: "Toggle autosave", disable: true, action: null
-		// },
 		{
-			name: "Load latest JS", disable: true, action: null
+			name: "Keep dev menu",
+			disable: false,
+			action: function () {
+				localStorage.setItem("dev_keepDevMenu", true)
+			}
 		},
-		// {
-		// 	name: "Show fake dom", disable: true, action: null
-		// },
-		// {
-		// 	name: "Print edit-log", disable: true, action: null
-		// }
+		{
+			name: "Hide dev menu",
+			disable: false,
+			action: function () {
+				localStorage.removeItem("dev_keepDevMenu");
+			}
+		},
+		{
+			name: "hr"
+		},
+		{
+			name: "useful actions",
+			disable: true,
+			action: null
+		},
+		{
+			name: "Try latest version",
+			disable: false,
+			action: function () {
+				show_action(`
+					<h3>Load latest JS</h3>
+					<hr>
+					<p>Fetching latest version from GitHub...</p>
+				`, 1);
+
+				fetch('https://raw.githubusercontent.com/hppsrc/paragraph/refs/heads/dev/src/public/index.js')
+				.then(response => {
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+					return response.text();
+				})
+				.then(code => {
+					const newPageContent = `
+
+						<!DOCTYPE html>
+						<html>
+						<head>
+							<title>Paragraph - Latest Version</title>
+							<link rel="stylesheet" href="/style.css">
+						</head>
+						<body>
+							<script>${code}</script>
+							<script>
+								alert("You're using a new JS version that might not fully work as expected.\\nSome features may be unstable or incompatible.");
+							</script>
+						</body>
+						</html>
+
+					`;
+
+					const newTab = window.open('', '_blank');
+					newTab.document.write(newPageContent);
+					newTab.document.close();
+
+				})
+				.catch(error => {
+
+					console.error('Error:', error);
+					show_action(`
+						<h3>Load latest JS</h3>
+						<hr>
+						<p>Error loading latest version</p>
+						<b><small>Check console for details</small></b>
+						<hr>
+						<div class="option_html" onclick="hide_action()">Ok</div>
+					`, 1);
+
+				});
+			}
+		},
+		{
+			name: "Reset data",
+			disable: false,
+			action: function () {
+				show_action(`
+					<h3>Reset Data</h3>
+					<hr>
+					<p>This will delete all saved data, including autosave and settings.<br>Are you sure?</p>
+					<hr>
+					<div class="option_html" onclick="
+						localStorage.clear();
+						hide_action();
+					">Yes, reset</div>
+					<div class="option_html" onclick="hide_action()">Cancel</div>
+				`, 1);
+			}
+		},
+		{
+			name: "Dark mode test",
+			disable: false,
+			action: function() {
+				document.body.style.backgroundColor = "black";
+				Array.from(document.body.children).forEach(child => {
+					child.classList.add('dark_mode');
+				});
+			}
+		},
+		{
+			name: "hr"
+		},
+		{
+			name: "unuseful actions",
+			disable: true,
+			action: null
+		},
+		{
+			name: "Show edit menu",
+			disable: false,
+			action: function () {
+				header_top_bar_actions_select_edit.style.display = "flex";
+			}
+		},
+		{
+			name: "Show text actions",
+			disable: false,
+			action: function () {
+				header_top_bar_actions_do.style.display = "flex";
+			}
+		},
+		{
+			name: "Show fake dom",
+			disable: false,
+			action: function() {
+				document.getElementById("sheet-style").style.display = "flex";
+			}
+		},
 	],
 	helpMenu: [
 		{
@@ -271,12 +404,17 @@ function show_news() {
 		<b><p>${version}</p></b>
 		<small>- Generation and processing of .ptd file.</small>
 		<small>- Added file open and save.</small>
-		<small>- Added Dev options.</small>
 		<small>- Added autosave.</small>
 		<hr>
 		<small>- Mayor server side changes.</small>
 		<small>- Code clean up.</small>
 		<small>- UI enhancements.</small>
+		<small>- Added Dev options.</small>
+		<small>-
+			<a href="https://github.com/hppsrc/paragraph/commits/main" target="_blank" style="color: #007bff; text-decoration: underline;">
+				Check last commit on repo!
+			</a>
+		</small>
 		<hr>
 		<div class="option_html" onclick="hide_action()" >Ok!</div>
 	`,1)
@@ -464,7 +602,7 @@ function load_file(confirm) {
 }
 
 function enable_para_dev() {
-	document.getElementById("dev_menu").style.display = "block";
+	document.getElementById("header_top_bar_actions_select_devm").style.display = "block";
 	show_action(`
 		<h3>Developer options enabled</h3>
 		<hr>
@@ -543,6 +681,7 @@ let autosaveIntervalId = null;
 const savedAutosave = localStorage.getItem("autosave");
 if (savedAutosave !== null) {
 	autosave = savedAutosave === 'true';
+	autosave_interval = localStorage.getItem('autosave_interval') * 1000;
 }
 function startAutosaveInterval() {
 
@@ -593,15 +732,15 @@ header.innerHTML = `
 
 		<div id="header_top_bar_actions_select">
 
-			<p class="action" onclick="show_action(this, 0);">File</p>
-			<!--p class="action" onclick="show_action(this, 0);">Edit</p-->
-			<p class="action" onclick="show_action(this, 0);">Settings</p>
-			<p id="dev_menu" class="action" onclick="show_action(this, 0);">Dev</p>
-			<p class="action" onclick="show_action(this, 0);">Help</p>
+			<p id="header_top_bar_actions_select_file" class="action" onclick="show_action(this, 0);">File</p>
+			<p id="header_top_bar_actions_select_edit" class="action" onclick="show_action(this, 0);">Edit</p>
+			<p id="header_top_bar_actions_select_stng" class="action" onclick="show_action(this, 0);">Settings</p>
+			<p id="header_top_bar_actions_select_devm" class="action" onclick="show_action(this, 0);">Dev</p>
+			<p id="header_top_bar_actions_select_help" class="action" onclick="show_action(this, 0);">Help</p>
 
 		</div>
 
-		<!--div id="header_top_bar_actions_do">
+		<div id="header_top_bar_actions_do">
 
 			<div class="document_action" onclick="show_action(this, 1)" id="action_setfont"><p> Font: <span style="font-family: Serif"> Serif </span> </p> </div>
 			<div class="document_action" onclick="show_action(this, 1)" id="action_setsize"><p> Size: 12px </p> </div>
@@ -611,7 +750,7 @@ header.innerHTML = `
 			<div class="document_action" id="action_italic"><i> K </i> </div>
 			<div class="document_action" id="action_underline"><span style="text-decoration: underline;"> U </span> </div>
 
-		</div-->
+		</div>
 
 	</div>
 
@@ -621,7 +760,7 @@ header.innerHTML = `
 const main = document.createElement("main");
 main.innerHTML = `
 
-	<!--div id="sheet" contenteditable="true"> Text </div-->
+	<div id="sheet-style" contenteditable="true"> Text </div>
 	<textarea id="sheet" placeholder="Type your text here..." ></textarea>
 
 `;
@@ -697,5 +836,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 
     startAutosaveInterval();
+
+	// ! DEV OPTION
+	if (localStorage.getItem("dev_keepDevMenu") != null) {
+		document.getElementById("header_top_bar_actions_select_devm").style.display = "block";
+	}
 
 })

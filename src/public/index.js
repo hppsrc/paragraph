@@ -1,12 +1,13 @@
-const version = "2.0.0-alpha_feat(save)";
-const build = "250211091";
+//region GLOBAL VARS
+const version = "2.0.0-alpha_feat(autosave)";
+const build = "2505191701";
 const git_branch = "dev";
 
-// vars
-const buttons_document = document.getElementsByClassName("document_action");
+//region DOM ELEMENTS
+// const buttons_document = document.getElementsByClassName("document_action");
 // const buttons_toggle = document.getElementsByClassName("document_toggle");
 
-// PTD SPECIFICATION 002
+//region PTD SPECIFICATION INFO
 const meta_info = {
 
 	"documentTitle": "Unnamed",
@@ -16,13 +17,12 @@ const meta_info = {
 
 };
 
+//region DOCUMENT INFO
 const document_info = {
 	"content" : ""
 };
 
-const saved = false;
-
-// definitions
+//region MENU DEFINITIONS
 menus = {
 	fileMenu: [
 		{
@@ -30,29 +30,23 @@ menus = {
 			disable: false,
 			action: function () {
 				show_action(`
+
 					<h3>New file</h3>
 					<hr>
 					<p>Are you sure?<br>Any unsaved change will be descarted...</p>
 					<hr>
 					<div class="option_html" onclick="location.reload()" >Yes</div>
 					<div class="option_html" onclick="hide_action()" >Cancel</div>
+
 				`, 1)
 			},
 		},
 		{
-			name: "Open file", disable: false, action: function () {
-				show_action(`
-					<h3>Open file</h3>
-					<hr>
-					<p>Temporarily disabled.</p>
-					<hr>
-					<div class="option_html" onclick="hide_action()" >Cancel</div>
-				`,1)
-			}
+			name: "Open file", disable: false, action: function () { load_file() }
 		},
 		{
 			name: "Save file", disable: false, action: function () { save_file() }
-		},
+		}
 		// {
 		// 	name: "Export",
 		// 	disable: true,
@@ -75,6 +69,55 @@ menus = {
 		{
 			name: "Paste", disable: true, action: null
 		},
+	],
+	settingsMenu: [
+		{
+			name: "Autosave time",
+			disable: false,
+			action: function() {
+				show_action(`
+
+					<h3>Autosave Settings</h3>
+					<hr>
+					<p>Set a custom autosave delay (seconds) if enabled</p>
+					<input id="input" maxlength="60" placeholder="10" oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
+					<hr>
+					<div class="option_html" onclick="
+						const val = parseInt(document.getElementById('input').value, 10);
+						if (!isNaN(val) && val > 0) {
+							autosave_interval = val;
+							localStorage.setItem('autosave_interval', val);
+							startAutosaveInterval();
+							hide_action();
+						} else {
+							wrapper_action(4)
+						}
+					">Update</div>
+					<div class="option_html" onclick="hide_action()" >Cancel</div>
+
+				`, 1)
+			}
+		}
+	],
+	devMenu: [
+		{
+			name: `Version: ${version} (${build+" "+git_branch})`, disable: true, action: null
+		},
+		{
+			name: "hr"
+		},
+		// {
+		// 	name: "Toggle autosave", disable: true, action: null
+		// },
+		{
+			name: "Load latest JS", disable: true, action: null
+		},
+		// {
+		// 	name: "Show fake dom", disable: true, action: null
+		// },
+		// {
+		// 	name: "Print edit-log", disable: true, action: null
+		// }
 	],
 	helpMenu: [
 		{
@@ -103,54 +146,47 @@ Enable "Dev tools" at "Help > About".
 			disable: false,
 			action: function () {
 				show_action(`
+
 					<h3>About Paragraph</h3>
 					<hr>
 					<p>Paragraph is a simple word proccesor made on JavaScript.</p>
 					<b><small> Version: ${version}</small></b>
 					<hr>
-					<div class="option_html" >
-						<a href='https://github.com/hppsrc/paragraph' target="_blank" rel="noopener noreferrer" onclick="hide_action()" >Check Github Repo</a>
-					</div>
+
 					<div class="option_html" onclick="
+
+						hide_action();
+						window.open('https://github.com/hppsrc/paragraph', '_blank').focus();
+
+					">Check Github Repository
+					</div>
+
+					<div class="option_html" onclick="
+
 						hide_action();
 						enable_para_dev();
+
 					" >Enabled dev tools</div>
+
 					<div class="option_html" onclick="hide_action()" >Cancel</div>
+
 				`,1)
 			}
 		},
-	],
-	devMenu: [
-		{
-			name: `Version: ${version} (${build+" "+git_branch})`, disable: true, action: null
-		},
-		{
-			name: "hr"
-		},
-		// {
-		// 	name: "Toggle autosave", disable: true, action: null
-		// },
-		{
-			name: "Load latest JS", disable: true, action: null
-		},
-		// {
-		// 	name: "Show fake dom", disable: true, action: null
-		// },
-		// {
-		// 	name: "Print edit-log", disable: true, action: null
-		// }
-	],
+	]
 };
 
-menus_extra = {
-	font: ["serif", "sans-serif", "monospace", "cursive", "fantasy"],
-};
+// menus_extra = {
+// 	font: ["serif", "sans-serif", "monospace", "cursive", "fantasy"],
+// };
 
-// functions
+//region FUNCTIONS
 function show_action(valueArg, action) {
 
 	if (action == 0) {
+
 		action_box.innerHTML = "";
+		action_box.classList = "";
 
 		let current = valueArg.textContent.toLowerCase() + "Menu";
 		let values = menus[current];
@@ -197,9 +233,14 @@ function show_action(valueArg, action) {
 
 	} else {
 
+		hide_action();
+
 		setTimeout(() => {
 
 			action_box.innerHTML = valueArg;
+			action_box.classList = "float";
+
+			setTimeout(() => { action_box.style.left = "50%"; }, 0);
 
 			overlay.style.display = "block";
 			action_box.style.width = '300px';
@@ -218,7 +259,9 @@ function show_action(valueArg, action) {
 			});
 
 		}, 150);
+
 	}
+
 }
 
 function show_news() {
@@ -227,10 +270,13 @@ function show_news() {
 		<hr>
 		<b><p>${version}</p></b>
 		<small>- Generation and processing of .ptd file.</small>
+		<small>- Added file open and save.</small>
+		<small>- Added Dev options.</small>
+		<small>- Added autosave.</small>
+		<hr>
 		<small>- Mayor server side changes.</small>
 		<small>- Code clean up.</small>
 		<small>- UI enhancements.</small>
-		<small>- Added Dev options.</small>
 		<hr>
 		<div class="option_html" onclick="hide_action()" >Ok!</div>
 	`,1)
@@ -263,25 +309,36 @@ function save_file() {
 		})
 		.then(blob => {
 
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+
+			a.href = url;
+			a.download = meta_info.documentTitle + ".ptd";
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+
+			URL.revokeObjectURL(url);
+
 			setTimeout(() => {
-
-				const url = URL.createObjectURL(blob);
-				const a = document.createElement('a');
-				a.href = url;
-				a.download = meta_info.documentTitle + ".ptd";
-				document.body.appendChild(a);
-				a.click();
-				document.body.removeChild(a);
-				URL.revokeObjectURL(url);
 				hide_action();
+			}, 250);
 
+		})
+		.catch(error => {
 
-			}, 1000);
+			hide_action();
 
-			// console.log('Server response:', data.msg);
+			show_action(`
+				<h3>Save file</h3>
+				<hr>
+				<p>Server error.</p>
+				<b><small>Details on console.</small></b>
+			`,1)
 
-			})
-		.catch(error => { console.error('Error:', error); });
+			console.error('Error:', error);
+
+		});
 
 	} else {
 
@@ -293,6 +350,114 @@ function save_file() {
 			<div class="option_html" onclick="hide_action()" >Cancel</div>
 		`,1)
 
+
+	}
+
+}
+
+function load_file(confirm) {
+
+	if ( sheet.value != '' && confirm != 1 ) {
+
+		show_action(`
+
+			<h3>Open file</h3>
+			<hr>
+			<p>Are you sure?<br>Any unsaved change will be discarded...</p>
+			<hr>
+			<div class="option_html" onclick="hide_action();load_file(1);" >Yes</div>
+			<div class="option_html" onclick="hide_action();return;" >Cancel</div>
+
+		`,1)
+
+	} else {
+
+		show_action(`
+		<h3>Open file</h3>
+		<hr>
+		<p>Loading file...</p>
+
+		`,1)
+
+		const fileInput = document.getElementById('fileInput');
+		fileInput.type = "file";
+		fileInput.accept = ".ptd";
+		fileInput.click();
+
+		fileInput.addEventListener("change", function(e) {
+
+			const file = e.target.files[0];
+
+			if (file) {
+
+				if (!file.name.toLowerCase().endsWith('.ptd')) {
+
+					show_action(`
+						<h3>Open file</h3>
+						<hr>
+						<p>Only .ptd files are supported.</p>
+						<hr>
+						<div class="option_html" onclick="hide_action()" >Ok</div>
+					`, 1);
+
+					return;
+
+				} else {
+
+					const reader = new FileReader();
+
+					reader.readAsArrayBuffer(file);
+
+					reader.onload = function(e) {
+
+						sheet.value = "";
+
+						const fileContent = e.target.result;
+
+						fetch('/api/file_reader', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/octet-stream',
+							},
+							body: fileContent
+						})
+						.then(response => {
+							if (!response.ok) {
+								throw new Error(`Error: ${response.status}`);
+							}
+							return response.json();
+						})
+						.then(data => {
+
+							sheet.value = data.document_info.content;
+							meta_info.documentTitle = data.meta_info.documentTitle;
+							header_top_bar_status_name.textContent = 'Name: ' + (meta_info.documentTitle).slice(0,8).concat('...');
+
+							hide_action();
+
+						})
+						.catch(error => {
+
+							hide_action();
+
+							show_action(`
+								<h3>Open file</h3>
+								<hr>
+								<p>Server error.</p>
+								<b><small>Details on console.</small></b>
+							`,1)
+
+							console.error('Error:', error);
+
+						});
+
+					};
+
+				}
+
+			}
+
+		})
 
 	}
 
@@ -315,6 +480,11 @@ function hide_action() {
 	setTimeout(() => { action_box.style.top = '-500px'; }, 0);
 }
 
+//region ACTION_WRAPPER
+// * set file name
+// * toggle autosave
+// * set fila name error
+// * autosave value error
 function wrapper_action(arg) {
 	if (arg == 1) {
 		show_action(`
@@ -336,14 +506,7 @@ function wrapper_action(arg) {
 			<div class="option_html" onclick="hide_action()" >Cancel</div>
 		`,1)
 	} else if (arg == 2) {
-		show_action(`
-			<h3>Autosave</h3>
-			<hr>
-			<p>Autosave is not available yet.</p>
-			<hr>
-			<div class="option_html" onclick="hide_action()" >Cancel</div>
-		`,1)
-
+		toggleAutosave();
 	} else if (arg == 3) {
 		show_action(`
 			<h3>Set new file name</h3>
@@ -352,31 +515,75 @@ function wrapper_action(arg) {
 			<hr>
 			<div class="option_html" onclick="hide_action();" >Ok!</div>
 		`,1)
+	} else if (arg == 4 ) {
+		show_action(`
+			<h3>Autosave Settings</h3>
+			<hr>
+			<p>Can't set an invalid value.</p>
+			<hr>
+			<div class="option_html" onclick="hide_action();" >Ok!</div>
+		`,1)
 	}
 }
 
+function updateAutosaveUI() {
+    header_top_bar_status_save.textContent = 'Autosave ' + (autosave ? 'enabled' : 'disabled');
+}
 
-// localStorage
+function toggleAutosave() {
+    autosave = !autosave;
+    localStorage.setItem("autosave", autosave);
+    updateAutosaveUI();
+}
+
+//region AUTOSAVE
+let autosave;
+let autosave_interval = 1000;
+let autosaveIntervalId = null;
+const savedAutosave = localStorage.getItem("autosave");
+if (savedAutosave !== null) {
+	autosave = savedAutosave === 'true';
+}
+function startAutosaveInterval() {
+
+    if (autosaveIntervalId) {
+        clearInterval(autosaveIntervalId);
+    }
+
+    autosaveIntervalId = setInterval(() => {
+        if (autosave) {
+            localStorage.setItem("autosave_data", "true");
+            localStorage.setItem("autosave_data_title", meta_info.documentTitle);
+            localStorage.setItem("autosave_data_content", sheet.value);
+        } else {
+            localStorage.removeItem("autosave_data");
+        }
+    }, autosave_interval);
+
+}
+
+
+//region LOCALSTORAGE
 if (localStorage.getItem("build") != build) {
 	localStorage.setItem("build", build);
 	show_news();
 }
 
-// header
+//region HEADER CONSTRUCTIOR
 const header = document.createElement("header");
 header.classList = "glow f_row";
 header.innerHTML = `
 
-	<h1 onclick="console.log('Para :)')">Pg</h1>
-
 	<input type="file" id="fileInput" style="display: none;" accept=".txt">
+
+	<h1 onclick="console.log('Para :)')">Pg</h1>
 
 	<vr></vr>
 
 	<div class="f_col" id="header_top_bar_status">
 
 		<p id="header_top_bar_status_name" onclick="wrapper_action(1)" >Name: ${(meta_info.documentTitle).slice(0,10).concat("...")}</p>
-		<!--p id="header_top_bar_status_save" onclick="wrapper_action(2)" >Autosave disabled</p-->
+		<p id="header_top_bar_status_save" onclick="wrapper_action(2)" >Autosave disabled</p>
 
 	</div>
 
@@ -386,10 +593,11 @@ header.innerHTML = `
 
 		<div id="header_top_bar_actions_select">
 
-			<p class="action" onclick="show_action(this, 0)">File</p>
-			<p class="action" onclick="show_action(this, 0)">Help</p>
-			<!--p class="action" onclick="show_action(this, 0)">Edit</p-->
-			<p id="dev_menu" class="action" onclick="show_action(this, 0)">Dev</p>
+			<p class="action" onclick="show_action(this, 0);">File</p>
+			<!--p class="action" onclick="show_action(this, 0);">Edit</p-->
+			<p class="action" onclick="show_action(this, 0);">Settings</p>
+			<p id="dev_menu" class="action" onclick="show_action(this, 0);">Dev</p>
+			<p class="action" onclick="show_action(this, 0);">Help</p>
 
 		</div>
 
@@ -409,7 +617,7 @@ header.innerHTML = `
 
 `;
 
-// main
+//region SHEET CONSTRUCTOR
 const main = document.createElement("main");
 main.innerHTML = `
 
@@ -418,51 +626,76 @@ main.innerHTML = `
 
 `;
 
-// action box
+//region ACTION_BOX CONSTRUCTOR
+// ? drop context menu
 const action_box = document.createElement("div");
 action_box.id = "action_box";
 
-// hoverbg
+//region OVERLAY CONSTRUCTOR
 const overlay = document.createElement("div");
 overlay.id = "overlay";
 
-// insert values
+//region WEBPAGE CONSTRUCTOR
 document.body.appendChild(action_box);
 document.body.appendChild(overlay);
 document.body.appendChild(header);
 document.body.appendChild(main);
 
-// after DOM load
+//region AFTER DOM LOAD ACTIONS
+let sheet;
+
 document.addEventListener("DOMContentLoaded", () => {
 
-	const sheet = document.getElementById("sheet");
+	sheet = document.getElementById("sheet");
 
 	let fileInput = document.getElementById('fileInput');
-
-	fileInput.addEventListener("change", function(e) {
-
-		const file = e.target.files[0];
-
-		if (file) {
-			const reader = new FileReader();
-
-			reader.readAsText(file);
-
-			reader.onload = function(e) {
-				sheet.value = e.target.result;
-			};
-
-			reader.onerror = function(e) {
-				console.error("Error:", e.target.error);
-			};
-		}
-
-	})
 
 	if (window.innerWidth < 768) {
 
 		alert("This page is not designed for small screens. Proper UI/UX is not guaranteed, please wait for a future update!");
 
 	}
+
+    updateAutosaveUI();
+
+	if (localStorage.getItem("autosave_data") != null) {
+
+		const val_temp = [
+			localStorage.getItem('autosave_data_title'),
+			localStorage.getItem('autosave_data_content')
+		];
+
+		show_action(`
+
+			<h3>Autosave data</h3>
+			<hr>
+			<p>Autosaved data found, do you want to restore it?</p>
+			<hr>
+
+			<div class="option_html" onclick="
+
+				hide_action();
+				header_top_bar_status_name.textContent = \`Name: ${val_temp[0].slice(0,10).concat("...")}\`;
+				header_top_bar_status_name.title = \`${val_temp[0]}\`;
+				meta_info.documentTitle = \`${val_temp[0]}\`;
+				sheet.value = \`${val_temp[1]}\`;
+
+			">Yes</div>
+
+			<div class="option_html" onclick="
+
+				hide_action();
+				localStorage.removeItem('autosave_data');
+				autosave = false;
+				localStorage.setItem('autosave', false);
+				updateAutosaveUI();
+
+			">Nah, also disable autosave.</div>
+
+		`, 1)
+
+	}
+
+    startAutosaveInterval();
 
 })

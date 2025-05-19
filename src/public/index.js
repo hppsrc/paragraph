@@ -7,6 +7,7 @@ const git_branch = "main"
 // const buttons_document = document.getElementsByClassName("document_action");
 // const buttons_toggle = document.getElementsByClassName("document_toggle");
 
+
 //region PTD SPECIFICATION INFO
 const meta_info = {
 
@@ -42,6 +43,7 @@ menus = {
 			},
 		},
 		{
+
 			name: "Open file", disable: false, action: function () { load_file() }
 		},
 		{
@@ -701,7 +703,6 @@ function startAutosaveInterval() {
 
 }
 
-
 //region LOCALSTORAGE
 if (localStorage.getItem("build") != build) {
 	localStorage.setItem("build", build);
@@ -795,7 +796,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	}
 
-    updateAutosaveUI();
+  updateAutosaveUI();
 
 	if (localStorage.getItem("autosave_data") != null) {
 

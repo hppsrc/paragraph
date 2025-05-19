@@ -30,3 +30,8 @@ coverage/
 # Misc
 .tmp/
 .temp/
+
+# Spec
+document.json
+meta.json
+*.zip

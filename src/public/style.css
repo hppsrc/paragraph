@@ -38,6 +38,11 @@
 	#action_box {
 		padding: 5px;
 
+		&.float {
+			padding: 1em;
+
+		}
+
 		width: 150px;
 		height: fit-content;
 
@@ -56,16 +61,33 @@
 
 		transition: top 0.25s, left 0.1s;
 
+		#input {
+			padding: 5px;
+
+			border: none;
+			border-radius: 10px;
+			outline: none;
+
+			resize: none;
+		}
+
 		div {
 			padding: 1px;
 
 			border-radius: 5px;
 
+			&.hr {
+				background-color: #9a9a9a;
+				padding: 0px;
+				margin: 5px 0;
+				height: 1px;
+			}
+
 			&.option_html::before {
 				content: "· ";
 			}
 
-			&:hover {
+			&:hover:not(.hr) {
 				background-color: hsl(188, 100%, 56%);
 				cursor: pointer;
 			}
@@ -87,12 +109,17 @@
 		z-index: 8;
 
 		transition: opacity 0.1s;
+
 	}
+
+	.dark_mode {
+		filter: invert(1) hue-rotate(180deg);
+	}
+
 }
 
 html {
 	body {
-
 		header {
 			position: fixed;
 
@@ -101,6 +128,8 @@ html {
 
 			justify-content: flex-start;
 			align-items: center;
+
+			border-bottom: solid 1px #9a9a9a;
 
 			text-align: center;
 
@@ -111,12 +140,22 @@ html {
 			}
 
 			#header_top_bar_status {
-				width: 10%;
+
+				min-width: 10%;
+
+				margin: 0 0.1em;
+				padding: 0 0.1em;
 
 				align-items: center;
 
+				transition: width 0.2s;
+
 				p {
-					padding: 0 2%;
+
+					min-width: 100%;
+
+					margin: 0 0.1em;
+					padding: 0 0.1em;
 
 					font-style: italic;
 					font-size: small;
@@ -147,12 +186,24 @@ html {
 					align-items: center;
 					justify-content: flex-start;
 
-					width: 100%;
+					min-width: 100%;
 
 					p {
-						padding: 0 0.5%;
+						padding: 0 0.25em;
 
 						border-radius: 5px;
+
+						&#header_top_bar_actions_select_devm {
+							display: none;
+
+							background-color: #ff77;
+						}
+
+						&#header_top_bar_actions_select_edit {
+							display: none;
+
+							background-color: #77ff8077;
+						}
 
 						&:hover {
 							background-color: #bbb;
@@ -164,7 +215,7 @@ html {
 				#header_top_bar_actions_do {
 					height: 50%;
 
-					display: flex;
+					display: none;
 					flex-direction: row;
 					align-items: center;
 					justify-content: flex-start;
@@ -237,7 +288,7 @@ html {
 
 			z-index: 1;
 
-			#sheet {
+			#sheet, #sheet-style {
 				padding: 1em;
 
 				top: 100px;
@@ -250,6 +301,11 @@ html {
 
 				resize: none;
 			}
+
+			#sheet-style {
+				display: none;
+			}
+
 		}
 	}
 }

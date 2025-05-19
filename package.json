@@ -1,6 +1,6 @@
 {
   "name": "paragraph",
-  "version": "0.1.0-alpha",
+  "version": "2.0.0",
   "description": "Simple text processor made in Vanilla JavaScript.",
   "keywords": [
     "office",
@@ -24,6 +24,8 @@
     "start": "node src/server.js"
   },
   "dependencies": {
-    "express": "^4.21.2"
+    "archiver": "^7.0.1",
+    "express": "^4.21.2",
+    "unzipper": "^0.12.3"
   }
 }

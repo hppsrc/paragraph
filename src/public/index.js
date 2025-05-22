@@ -1,6 +1,6 @@
 //region GLOBAL VARS
-const version = "2.1.0";
-const build = "2505220801";
+const version = "2.1.1";
+const build = "2505220901";
 const git_branch = "main"
 
 //region DOM ELEMENTS
@@ -516,13 +516,6 @@ function load_file(confirm) {
 
 	} else {
 
-		show_action(`
-		<h3>Open file</h3>
-		<hr>
-		<p>Loading file...</p>
-
-		`,1)
-
 		const fileInput = document.getElementById('fileInput');
 		fileInput.type = "file";
 		fileInput.accept = ".ptd";
@@ -582,8 +575,6 @@ function load_file(confirm) {
 						})
 						.catch(error => {
 
-							hide_action();
-
 							show_action(`
 								<h3>Open file</h3>
 								<hr>
@@ -601,7 +592,7 @@ function load_file(confirm) {
 
 			}
 
-		})
+		});
 
 	}
 

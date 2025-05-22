@@ -1,6 +1,6 @@
 //region GLOBAL VARS
 const version = "2.2.0_feat(undo)";
-const build = "2505221101";
+const build = "2505221501";
 const git_branch = "dev"
 
 //region DOM ELEMENTS
@@ -56,7 +56,7 @@ menus = {
 			name: "Exit",
 			disable: false,
 			action: function () {
-				location.href = "https://github.com/hppsrc"
+				location.href = "https://github.com/hppsrc";
 			}
 		}
 	],
@@ -94,10 +94,14 @@ menus = {
 						if (!isNaN(val) && val > 0) {
 							autosave_interval = val * 1000;
 							localStorage.setItem('autosave_interval', val);
+							autosave = true;
+							localStorage.setItem('autosave', autosave);
+							updateAutosaveUI();
 							startAutosaveInterval();
+							show_alert('Autosave was enabled.');
 							hide_action();
 						} else {
-							wrapper_action(4)
+							show_alert(\`Can\'t set an invalid value.\`);
 						}
 					">Update</div>
 					<div class="option_html" onclick="hide_action()" >Cancel</div>
@@ -109,6 +113,8 @@ menus = {
 			name: "Toggle dark mode",
 			disable: false,
 			action: function() {
+
+				show_alert("Dark mode toggled.");
 
 				if ( localStorage.getItem("set_darkMode") == 'true' ) {
 
@@ -151,6 +157,7 @@ menus = {
 			disable: false,
 			action: function () {
 				localStorage.setItem("dev_keepDevMenu", true)
+				show_alert("Developer menu will keep visible.")
 			}
 		},
 		{
@@ -158,6 +165,7 @@ menus = {
 			disable: false,
 			action: function () {
 				localStorage.removeItem("dev_keepDevMenu");
+				show_alert("Developer menu will hide on next reload.")
 			}
 		},
 		{
@@ -230,6 +238,7 @@ menus = {
 					<hr>
 					<div class="option_html" onclick="
 						localStorage.clear();
+						show_alert('Local data deleted.'),
 						hide_action();
 					">Yes, reset</div>
 					<div class="option_html" onclick="hide_action()">Cancel</div>
@@ -243,19 +252,18 @@ menus = {
 				show_action(`
 					<h3>Custom Local Data</h3>
 					<hr>
-					<p>Set or update a key/value in localStorage:</p>
-					<textarea id="customLocalDataKey" class="input" maxlength="50" placeholder="Key " /></textarea>
-					<textarea id="customLocalDataValue" class="input" maxlength="500" placeholder="Value " /></textarea>
+					<p>Set or update a key/value in localStorage</p>
+					<textarea id="customLocalDataKey" class="input" maxlength="50" placeholder="Key" /></textarea>
+					<textarea id="customLocalDataValue" class="input" maxlength="500" placeholder="Value" /></textarea>
 					<hr>
 					<div class="option_html" onclick="
 						const key = document.getElementById('customLocalDataKey').value;
 						const value = document.getElementById('customLocalDataValue').value;
 						if (key) {
 							localStorage.setItem(key, value);
-							hide_action();
-						} else {
-							alert('Key is required');
+							show_alert('Local data \"value\" on \"key\" set.'),
 						}
+						hide_action();
 					">Save</div>
 					<div class="option_html" onclick="hide_action()">Cancel</div>
 				`, 1);
@@ -266,14 +274,61 @@ menus = {
 			disable: false,
 			action: function() {
 				localStorage.setItem("dev_logLiveArrayAction", true)
+				show_alert("Log live array action enabled, check console.")
 			}
 		},
 		{
 			name: "Custom alert box",
 			disable: false,
-			action: function() {
-				show_alert("hola");
+			action: function () {
+				show_action(`
+					<h3>Custom alert box</h3>
+					<hr>
+					<p>Set an alert text</p>
+					<textarea id="input" class="input" maxlength="50" placeholder="Hello world" /></textarea>
+					<hr>
+					<div class="option_html" onclick="
+						const input = document.getElementById('input').value;
+						show_alert(input);
+						hide_action();
+					">Call</div>
+					<div class="option_html" onclick="hide_action()">Cancel</div>
+				`, 1);
+
 			}
+		},
+		{
+			name: "Allow user-select",
+			disable: false,
+			action: function () {
+				show_alert("User-select enabled.");
+				document.querySelectorAll('*').forEach(e => {
+					e.style.userSelect = 'auto';
+				})
+			}
+		},
+		{
+			name: "Dump localStorage",
+			disable: false,
+			action: function () {
+				let dump = '';
+				for (let i = 0; i < localStorage.length; i++) {
+					const key = localStorage.key(i);
+					dump += `${key}: ${localStorage.getItem(key)}\n`;
+				}
+				show_action(`
+					<h3>localStorage Dump</h3>
+					<hr>
+					<pre style="max-height: 300px; overflow-y: auto;">${dump}</pre>
+					<hr>
+					<div class="option_html" onclick="hide_action()">Close</div>
+				`, 1);
+			}
+		},
+		{
+			name: "Submenu Test",
+			disable: false,
+			submenu: ["value"]
 		},
 		{
 			name: "hr"
@@ -356,7 +411,8 @@ Enable "Dev tools" at "Help > About".
 
 //region FUNCTIONS
 function show_action(valueArg, action) {
-	action_box.classList = "";
+
+	action_box.classList.remove("float");
 
 	if (localStorage.getItem("set_darkMode") == 'true') {
 		action_box.classList.add("dark_mode");
@@ -389,10 +445,13 @@ function show_action(valueArg, action) {
 		});
 
 		values.forEach((item) => {
+
 			let div = document.createElement("div");
+
 			if (item.name == "hr") {
 				div.classList += " hr"
 			} else {
+
 				div.textContent = item.name;
 
 				if (item.disable) {
@@ -406,7 +465,25 @@ function show_action(valueArg, action) {
 				}
 
 			}
+
+			if (Array.isArray(item.submenu)) {
+
+				div.addEventListener('mouseover', function() {
+
+					action_box.style.width = "300px";
+
+				})
+
+				div.addEventListener('mouseout', function() {
+
+					action_box.style.width = "150px";
+
+				})
+
+			}
+
 			action_box.appendChild(div);
+
 		});
 
 	} else {
@@ -442,22 +519,38 @@ function show_action(valueArg, action) {
 
 }
 
+let alertTimeout = null;
 function show_alert(value) {
 
-	alert_box.textContent = value;
+	if (alertTimeout) {
+		clearTimeout(alertTimeout);
+		alert_box.style.top = "120vh";
+	}
 
+	alert_box.textContent = value;
 	alert_box.style.top = "90vh";
+
+	alert_box.style.width =  value.length * 0.5 + 'em';
+
+	alertTimeout = setTimeout(() => {
+		alert_box.style.top = "120vh";
+	}, 3000);
 
 }
 
 function show_news() {
+
 	show_action(`
+
 		<h3>News</h3>
+		<hr>
+		<h2>+1k Lines of code!</h2>
 		<hr>
 		<b><p>${version}</p></b>
         <small>- Added Edit options.</small>
         <small>- Added Dark mode.</small>
 		<hr>
+        <small>- Added Alert box.</small>
         <small>- Added extra dev options.</small>
 		<hr>
 		<div class="option_html" onclick="
@@ -468,18 +561,16 @@ function show_news() {
 		">Check last commit on repo!
 		</div>
 		<div class="option_html" onclick="hide_action()" >Ok!</div>
+
 	`,1)
+
 }
 
 function save_file() {
 
 	if ( sheet.value != '' ) {
 
-		show_action(`
-			<h3>Save file</h3>
-			<hr>
-			<p>Preparing download.</p>
-		`,1)
+		show_alert("Preparing download.");
 
 		document_info.content = sheet.value
 
@@ -509,9 +600,7 @@ function save_file() {
 
 			URL.revokeObjectURL(url);
 
-			setTimeout(() => {
-				hide_action();
-			}, 250);
+			show_alert("Starting download.");
 
 		})
 		.catch(error => {
@@ -538,7 +627,6 @@ function save_file() {
 			<hr>
 			<div class="option_html" onclick="hide_action()" >Cancel</div>
 		`,1)
-
 
 	}
 
@@ -644,20 +732,16 @@ function load_file(confirm) {
 }
 
 function enable_para_dev() {
+	show_alert("Developer options enabled. Reload to disable.");
 	document.getElementById("header_top_bar_actions_select_devm").style.display = "block";
-	show_action(`
-		<h3>Developer options enabled</h3>
-		<hr>
-		<p>Reload to disable.</p>
-		<hr>
-		<div class="option_html" onclick="hide_action();" >Ok!</div>
-	`,1)
 }
 
 function hide_action() {
+
 	setTimeout(() => { overlay.style.opacity = '0'; }, 0);
 	setTimeout(() => { overlay.style.display = 'none'; }, 100);
 	setTimeout(() => { action_box.style.top = '-500px'; }, 0);
+
 }
 
 //region ACTION_WRAPPER
@@ -666,7 +750,9 @@ function hide_action() {
 // * set fila name error
 // * autosave value error
 function wrapper_action(arg) {
+
 	if (arg == 1) {
+
 		show_action(`
 			<h3>Set new file name</h3>
 			<hr>
@@ -674,36 +760,20 @@ function wrapper_action(arg) {
 			<textarea id="input" class="input" maxlength="30" placeholder="Type your text here..." ></textarea>
 			<hr>
 			<div class="option_html" onclick="
-				hide_action();
 				if ( input.value != '' ) {
 					meta_info.documentTitle = input.value;
 					header_top_bar_status_name.title = meta_info.documentTitle;
-					header_top_bar_status_name.textContent = 'Name: ' + (meta_info.documentTitle).slice(0,8).concat('...')
+					header_top_bar_status_name.textContent = 'Name: ' + (meta_info.documentTitle).slice(0,8).concat('...');
+					hide_action();
 				} else {
-					wrapper_action(3)
+					show_alert(\`Can\'t set a empty name.\`);
 				}
 			" >Rename</div>
 			<div class="option_html" onclick="hide_action()" >Cancel</div>
 		`,1)
-	} else if (arg == 2) {
-		toggleAutosave();
-	} else if (arg == 3) {
-		show_action(`
-			<h3>Set new file name</h3>
-			<hr>
-			<p>Can't set a empty name.</p>
-			<hr>
-			<div class="option_html" onclick="hide_action();" >Ok!</div>
-		`,1)
-	} else if (arg == 4 ) {
-		show_action(`
-			<h3>Autosave Settings</h3>
-			<hr>
-			<p>Can't set an invalid value.</p>
-			<hr>
-			<div class="option_html" onclick="hide_action();" >Ok!</div>
-		`,1)
+
 	}
+
 }
 
 function updateAutosaveUI() {
@@ -727,6 +797,10 @@ if (savedAutosave !== null) {
 }
 function startAutosaveInterval() {
 
+	localStorage.setItem("autosave_data", "true");
+	localStorage.setItem("autosave_data_title", meta_info.documentTitle);
+	localStorage.setItem("autosave_data_content", sheet.value);
+
     if (autosaveIntervalId) {
         clearInterval(autosaveIntervalId);
     }
@@ -743,12 +817,6 @@ function startAutosaveInterval() {
 
 }
 
-//region LOCALSTORAGE
-if (localStorage.getItem("build") != build) {
-	localStorage.setItem("build", build);
-	show_news();
-}
-
 //region HEADER CONSTRUCTIOR
 const header = document.createElement("header");
 header.classList = "glow f_row";
@@ -763,7 +831,7 @@ header.innerHTML = `
 	<div class="f_col" id="header_top_bar_status">
 
 		<p id="header_top_bar_status_name" onclick="wrapper_action(1)" >Name: ${(meta_info.documentTitle).slice(0,10).concat("...")}</p>
-		<p id="header_top_bar_status_save" onclick="wrapper_action(2)" >Autosave disabled</p>
+		<p id="header_top_bar_status_save" onclick="toggleAutosave();" >Autosave disabled</p>
 
 	</div>
 
@@ -812,7 +880,11 @@ const action_box = document.createElement("div");
 action_box.id = "action_box";
 // ? alert box
 const alert_box = document.createElement("div");
-alert_box.id = "alert_box"
+alert_box.id = "alert_box";
+alert_box.title = "Click to close.";
+alert_box.addEventListener('click', function () {
+	alert_box.style.top = "120vh";
+});
 
 //region OVERLAY CONSTRUCTOR
 const overlay = document.createElement("div");
@@ -827,21 +899,31 @@ document.body.appendChild(main);
 
 //region AFTER DOM LOAD ACTIONS
 let sheet;
-
 document.addEventListener("DOMContentLoaded", () => {
 
+	// * sheet selector
 	sheet = document.getElementById("sheet");
 
+	// * file input
 	let fileInput = document.getElementById('fileInput');
 
+	// * UI/UX warning
 	if (window.innerWidth < 768) {
-
 		alert("This page is not designed for small screens. Proper UI/UX is not guaranteed, please wait for a future update!");
+	}
+
+	// * Darkmode
+	if (localStorage.getItem("set_darkMode") == 'true') {
+
+		document.body.style.backgroundColor = "black";
+		Array.from(document.body.children).forEach(child => {
+			child.classList.add('dark_mode');
+		});
+		overlay.classList.remove('dark_mode');
 
 	}
 
-  updateAutosaveUI();
-
+	// * Autosave
 	if (localStorage.getItem("autosave_data") != null) {
 
 		const val_temp = [
@@ -879,9 +961,10 @@ document.addEventListener("DOMContentLoaded", () => {
 		`, 1)
 
 	}
-
+  	updateAutosaveUI();
     startAutosaveInterval();
 
+	// * operation check
 	let currentAction = "";
 	let actionCounter = 0;
 	let actionArray = [];
@@ -941,14 +1024,10 @@ document.addEventListener("DOMContentLoaded", () => {
 		document.getElementById("header_top_bar_actions_select_devm").style.display = "block";
 	}
 
-	if (localStorage.getItem("set_darkMode") == 'true') {
-
-		document.body.style.backgroundColor = "black";
-		Array.from(document.body.children).forEach(child => {
-			child.classList.add('dark_mode');
-		});
-		overlay.classList.remove('dark_mode');
-
+	// * show news
+	if (localStorage.getItem("build") != build) {
+		localStorage.setItem("build", build);
+		show_news();
 	}
 
 })

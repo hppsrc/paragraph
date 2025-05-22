@@ -1,6 +1,6 @@
 //region GLOBAL VARS
-const version = "2.0.0";
-const build = "2505191801";
+const version = "2.1.0";
+const build = "2505220801";
 const git_branch = "main"
 
 //region DOM ELEMENTS
@@ -403,21 +403,25 @@ function show_news() {
 	show_action(`
 		<h3>News</h3>
 		<hr>
-		<b><p>${version}</p></b>
+		<b><p>${version} (hotfix)</p></b>
+        <small>- Changed to in-memory .ptd file processing for serverless compatibility.</small>
+        <small>- Fixed file handling for Vercel deployment.</small>
+		<b><p>2.0.0</p></b>
 		<small>- Generation and processing of .ptd file.</small>
 		<small>- Added file open and save.</small>
 		<small>- Added autosave.</small>
-		<hr>
 		<small>- Mayor server side changes.</small>
 		<small>- Code clean up.</small>
 		<small>- UI enhancements.</small>
 		<small>- Added Dev options.</small>
-		<small>-
-			<a href="https://github.com/hppsrc/paragraph/commits/main" target="_blank" style="color: #007bff; text-decoration: underline;">
-				Check last commit on repo!
-			</a>
-		</small>
 		<hr>
+		<div class="option_html" onclick="
+
+			hide_action();
+			window.open('https://github.com/hppsrc/paragraph/commits/main', '_blank').focus();
+
+		">Check last commit on repo!
+		</div>
 		<div class="option_html" onclick="hide_action()" >Ok!</div>
 	`,1)
 }

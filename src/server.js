@@ -1,120 +1,104 @@
-const fsf = require('fs');
-const fs = require('node:fs/promises');
 const express = require('express');
 const archiver = require('archiver');
-const crypto = require('crypto');
 const unzipper = require('unzipper');
-
-const port = 3000;
 const path = require('path');
+const { Readable } = require('stream');
+
+const port = process.env.PORT || 3000;
 const app = express();
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 app.post('/api/file_download', (req, res) => {
-	const data = req.body;
+    const data = req.body;
 
-	async function createFile() {
+    async function createFileInMemory() {
 
-		try {
+        try {
 
-			const content_meta = JSON.stringify(data.meta_info);
-			const content_document = JSON.stringify(data.document_info);
+            const content_meta = JSON.stringify(data.meta_info);
+            const content_document = JSON.stringify(data.document_info);
 
-			const randomBytes = crypto.randomBytes(9);
-			let dir = 'tmp_'.concat(randomBytes.toString('base64').slice(0, 12).replace(/\//g, '-'));
+            const archive = archiver('zip', { zlib: { level: 9 } });
 
-			if (!fsf.existsSync(dir)){ fsf.mkdirSync(dir); }
+            res.setHeader('Content-Type', 'application/zip');
+            res.setHeader('Content-Disposition', `attachment; filename="${data.meta_info.documentTitle || 'document'}.ptd"`);
 
-			await fs.writeFile(path.join('.' , dir ,  'meta.json'), content_meta, { flag: 'w' });
-			await fs.writeFile(path.join('.', dir ,  'document.json'), content_document, { flag: 'w' });
+            archive.append(Buffer.from(content_meta), { name: 'meta.json' });
+            archive.append(Buffer.from(content_document), { name: 'document.json' });
 
-			const archive = archiver('zip', { zlib: { level: 9 } });
+            archive.pipe(res);
 
-			res.setHeader('Content-Type', 'application/zip');
-			res.setHeader('Content-Disposition', 'attachment; filename="document.ptd"');
+            archive.finalize();
 
-			archive.append(fsf.createReadStream(path.join('.' , dir ,  'meta.json')), { name: 'meta.json' });
-			archive.append(fsf.createReadStream(path.join('.' , dir ,  'document.json')), { name: 'document.json' });
+        } catch (err) {
 
-			archive.pipe(res);
+            console.error('Error creating file:', err);
+            res.status(500).json({ msg: `Error: "${err.message}"`, error: true });
 
-			return new Promise((resolve, reject) => {
-				archive.on('close', () => {
-					fsf.rmSync(dir, { recursive: true });
-					resolve();
-				});
-				archive.on('error', reject);
-				archive.finalize();
-			});
+        }
+    }
 
-		} catch (err) {
-			res.status(500).json({ msg: `Error: "${err}"` });
-			console.log(err);
-		}
-
-	}
-
-	createFile();
+    createFileInMemory();
 
 });
 
 app.post('/api/file_reader', express.raw({ type: 'application/octet-stream', limit: '10mb' }), async (req, res) => {
-    let dir;
 
     try {
 
-        const randomBytes = crypto.randomBytes(9);
-        dir = 'tmp_'.concat(randomBytes.toString('base64').slice(0, 12).replace(/\//g, '-'));
+        const fileBuffer = req.body;
+        const bufferStream = new Readable();
+        bufferStream.push(fileBuffer);
+        bufferStream.push(null);
 
-        if (!fsf.existsSync(dir)) {
-            fsf.mkdirSync(dir);
+        let metaContent, documentContent;
+
+        const directory = await unzipper.Open.buffer(fileBuffer);
+
+        for (const file of directory.files) {
+
+            if (file.path === 'meta.json') {
+
+                const content = await file.buffer();
+                metaContent = JSON.parse(content.toString());
+
+            } else if (file.path === 'document.json') {
+
+                const content = await file.buffer();
+                documentContent = JSON.parse(content.toString());
+
+            }
+
         }
 
-        const tempZipPath = path.join(dir, 'temp.zip');
-        await fs.writeFile(tempZipPath, req.body);
-
-        const extractPath = path.join(dir, 'extracted');
-        await fs.mkdir(extractPath);
-
-        await new Promise((resolve, reject) => {
-            fsf.createReadStream(tempZipPath)
-                .pipe(unzipper.Extract({ path: extractPath }))
-                .on('close', resolve)
-                .on('error', reject);
-        });
-
-        const metaContent = JSON.parse(
-            await fs.readFile(path.join(extractPath, 'meta.json'), 'utf8')
-        );
-        const documentContent = JSON.parse(
-            await fs.readFile(path.join(extractPath, 'document.json'), 'utf8')
-        );
+        if (!metaContent || !documentContent) {
+            throw new Error('Invalid .ptd file format. Missing required files.');
+        }
 
         const response = {
             meta_info: metaContent,
             document_info: documentContent
         };
 
-        fsf.rmSync(dir, { recursive: true });
         res.json(response);
 
     } catch (err) {
 
-        if (dir && fsf.existsSync(dir)) {
-            fsf.rmSync(dir, { recursive: true });
-        }
+        console.error('Error reading file:', err);
         res.status(400).json({
             msg: `Error: ${err.message}`,
             error: true
         });
-        console.error(err);
 
     }
 
 });
 
-app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 
 app.listen(port, () => { console.log(`Running on http://localhost:${port}`); });

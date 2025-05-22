@@ -1,7 +1,7 @@
 //region GLOBAL VARS
-const version = "2.1.1";
-const build = "2505220901";
-const git_branch = "main"
+const version = "2.2.0_feat(undo)";
+const build = "2505221101";
+const git_branch = "dev"
 
 //region DOM ELEMENTS
 // const buttons_document = document.getElementsByClassName("document_action");
@@ -87,7 +87,7 @@ menus = {
 					<h3>Autosave Settings</h3>
 					<hr>
 					<p>Set a custom autosave delay (seconds) if enabled</p>
-					<input id="input" maxlength="60" placeholder="10" oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
+					<input id="input" class="input" maxlength="60" placeholder="10" oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
 					<hr>
 					<div class="option_html" onclick="
 						const val = parseInt(document.getElementById('input').value, 10);
@@ -103,6 +103,33 @@ menus = {
 					<div class="option_html" onclick="hide_action()" >Cancel</div>
 
 				`, 1)
+			}
+		},
+		{
+			name: "Toggle dark mode",
+			disable: false,
+			action: function() {
+
+				if ( localStorage.getItem("set_darkMode") == 'true' ) {
+
+					localStorage.setItem("set_darkMode", false);
+					document.body.style.backgroundColor = "white";
+					Array.from(document.body.children).forEach(child => {
+						child.classList.remove('dark_mode');
+					});
+
+				} else {
+
+					localStorage.setItem("set_darkMode", true);
+					document.body.style.backgroundColor = "black";
+					Array.from(document.body.children).forEach(child => {
+						child.classList.add('dark_mode');
+					});
+
+				}
+
+				overlay.classList.remove('dark_mode');
+
 			}
 		}
 	],
@@ -137,65 +164,60 @@ menus = {
 			name: "hr"
 		},
 		{
-			name: "useful actions",
-			disable: true,
-			action: null
-		},
-		{
 			name: "Try latest version",
-			disable: false,
-			action: function () {
-				show_action(`
-					<h3>Load latest JS</h3>
-					<hr>
-					<p>Fetching latest version from GitHub...</p>
-				`, 1);
+			disable: true,
+			// action: function () {
+			// 	show_action(`
+			// 		<h3>Load latest JS</h3>
+			// 		<hr>
+			// 		<p>Fetching latest version from GitHub...</p>
+			// 	`, 1);
 
-				fetch('https://raw.githubusercontent.com/hppsrc/paragraph/refs/heads/dev/src/public/index.js')
-				.then(response => {
-					if (!response.ok) {
-						throw new Error('Network response was not ok');
-					}
-					return response.text();
-				})
-				.then(code => {
-					const newPageContent = `
+			// 	fetch('https://raw.githubusercontent.com/hppsrc/paragraph/refs/heads/dev/src/public/index.js')
+			// 	.then(response => {
+			// 		if (!response.ok) {
+			// 			throw new Error('Network response was not ok');
+			// 		}
+			// 		return response.text();
+			// 	})
+			// 	.then(code => {
+			// 		const newPageContent = `
 
-						<!DOCTYPE html>
-						<html>
-						<head>
-							<title>Paragraph - Latest Version</title>
-							<link rel="stylesheet" href="/style.css">
-						</head>
-						<body>
-							<script>${code}</script>
-							<script>
-								alert("You're using a new JS version that might not fully work as expected.\\nSome features may be unstable or incompatible.");
-							</script>
-						</body>
-						</html>
+			// 			<!DOCTYPE html>
+			// 			<html>
+			// 			<head>
+			// 				<title>Paragraph - Latest Version</title>
+			// 				<link rel="stylesheet" href="/style.css">
+			// 			</head>
+			// 			<body>
+			// 				<script>${code}</script>
+			// 				<script>
+			// 					alert("You're using a new JS version that might not fully work as expected.\\nSome features may be unstable or incompatible.");
+			// 				</script>
+			// 			</body>
+			// 			</html>
 
-					`;
+			// 		`;
 
-					const newTab = window.open('', '_blank');
-					newTab.document.write(newPageContent);
-					newTab.document.close();
+			// 		const newTab = window.open('', '_blank');
+			// 		newTab.document.write(newPageContent);
+			// 		newTab.document.close();
 
-				})
-				.catch(error => {
+			// 	})
+			// 	.catch(error => {
 
-					console.error('Error:', error);
-					show_action(`
-						<h3>Load latest JS</h3>
-						<hr>
-						<p>Error loading latest version</p>
-						<b><small>Check console for details</small></b>
-						<hr>
-						<div class="option_html" onclick="hide_action()">Ok</div>
-					`, 1);
+			// 		console.error('Error:', error);
+			// 		show_action(`
+			// 			<h3>Load latest JS</h3>
+			// 			<hr>
+			// 			<p>Error loading latest version</p>
+			// 			<b><small>Check console for details</small></b>
+			// 			<hr>
+			// 			<div class="option_html" onclick="hide_action()">Ok</div>
+			// 		`, 1);
 
-				});
-			}
+			// 	});
+			// }
 		},
 		{
 			name: "Reset data",
@@ -215,29 +237,46 @@ menus = {
 			}
 		},
 		{
-			name: "Dark mode test",
+			name: "Custom local data",
+			disable: false,
+			action: function () {
+				show_action(`
+					<h3>Custom Local Data</h3>
+					<hr>
+					<p>Set or update a key/value in localStorage:</p>
+					<textarea id="customLocalDataKey" class="input" maxlength="50" placeholder="Key " /></textarea>
+					<textarea id="customLocalDataValue" class="input" maxlength="500" placeholder="Value " /></textarea>
+					<hr>
+					<div class="option_html" onclick="
+						const key = document.getElementById('customLocalDataKey').value;
+						const value = document.getElementById('customLocalDataValue').value;
+						if (key) {
+							localStorage.setItem(key, value);
+							hide_action();
+						} else {
+							alert('Key is required');
+						}
+					">Save</div>
+					<div class="option_html" onclick="hide_action()">Cancel</div>
+				`, 1);
+			}
+		},
+		{
+			name: "Log live array action",
 			disable: false,
 			action: function() {
-				document.body.style.backgroundColor = "black";
-				Array.from(document.body.children).forEach(child => {
-					child.classList.add('dark_mode');
-				});
+				localStorage.setItem("dev_logLiveArrayAction", true)
+			}
+		},
+		{
+			name: "Custom alert box",
+			disable: false,
+			action: function() {
+				show_alert("hola");
 			}
 		},
 		{
 			name: "hr"
-		},
-		{
-			name: "unuseful actions",
-			disable: true,
-			action: null
-		},
-		{
-			name: "Show edit menu",
-			disable: false,
-			action: function () {
-				header_top_bar_actions_select_edit.style.display = "flex";
-			}
 		},
 		{
 			name: "Show text actions",
@@ -317,11 +356,15 @@ Enable "Dev tools" at "Help > About".
 
 //region FUNCTIONS
 function show_action(valueArg, action) {
+	action_box.classList = "";
+
+	if (localStorage.getItem("set_darkMode") == 'true') {
+		action_box.classList.add("dark_mode");
+	}
 
 	if (action == 0) {
 
 		action_box.innerHTML = "";
-		action_box.classList = "";
 
 		let current = valueArg.textContent.toLowerCase() + "Menu";
 		let values = menus[current];
@@ -373,7 +416,7 @@ function show_action(valueArg, action) {
 		setTimeout(() => {
 
 			action_box.innerHTML = valueArg;
-			action_box.classList = "float";
+			action_box.classList.add("float");
 
 			setTimeout(() => { action_box.style.left = "50%"; }, 0);
 
@@ -399,21 +442,23 @@ function show_action(valueArg, action) {
 
 }
 
+function show_alert(value) {
+
+	alert_box.textContent = value;
+
+	alert_box.style.top = "90vh";
+
+}
+
 function show_news() {
 	show_action(`
 		<h3>News</h3>
 		<hr>
-		<b><p>${version} (hotfix)</p></b>
-        <small>- Changed to in-memory .ptd file processing for serverless compatibility.</small>
-        <small>- Fixed file handling for Vercel deployment.</small>
-		<b><p>2.0.0</p></b>
-		<small>- Generation and processing of .ptd file.</small>
-		<small>- Added file open and save.</small>
-		<small>- Added autosave.</small>
-		<small>- Mayor server side changes.</small>
-		<small>- Code clean up.</small>
-		<small>- UI enhancements.</small>
-		<small>- Added Dev options.</small>
+		<b><p>${version}</p></b>
+        <small>- Added Edit options.</small>
+        <small>- Added Dark mode.</small>
+		<hr>
+        <small>- Added extra dev options.</small>
 		<hr>
 		<div class="option_html" onclick="
 
@@ -626,7 +671,7 @@ function wrapper_action(arg) {
 			<h3>Set new file name</h3>
 			<hr>
 			<p>Current name: ${meta_info.documentTitle}</p>
-			<textarea id="input" maxlength="30" placeholder="Type your text here..." ></textarea>
+			<textarea id="input" class="input" maxlength="30" placeholder="Type your text here..." ></textarea>
 			<hr>
 			<div class="option_html" onclick="
 				hide_action();
@@ -761,18 +806,22 @@ main.innerHTML = `
 
 `;
 
-//region ACTION_BOX CONSTRUCTOR
-// ? drop context menu
+//region ALERTS CONSTRUCTORS
+// ? drop context menu and modal
 const action_box = document.createElement("div");
 action_box.id = "action_box";
+// ? alert box
+const alert_box = document.createElement("div");
+alert_box.id = "alert_box"
 
 //region OVERLAY CONSTRUCTOR
 const overlay = document.createElement("div");
 overlay.id = "overlay";
 
 //region WEBPAGE CONSTRUCTOR
-document.body.appendChild(action_box);
 document.body.appendChild(overlay);
+document.body.appendChild(action_box);
+document.body.appendChild(alert_box);
 document.body.appendChild(header);
 document.body.appendChild(main);
 
@@ -833,9 +882,73 @@ document.addEventListener("DOMContentLoaded", () => {
 
     startAutosaveInterval();
 
+	let currentAction = "";
+	let actionCounter = 0;
+	let actionArray = [];
+	let actionList = [];
+
+	document.addEventListener('keydown', function(e) {
+		let newAction = '';
+
+		if (document.activeElement === sheet) {
+
+			if (/^[a-zA-Z0-9 !"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]$/.test(e.key)) {
+				newAction = "pkey";
+				actionArray.push(e.key);
+				actionCounter++;
+			} else if (e.key === "Backspace") {
+				newAction = "back";
+				actionCounter++;
+			} else if (e.key === "Enter") {
+				newAction = "entr";
+				actionArray.push("\n");
+				actionCounter++;
+			}
+
+			// if action changes remove array
+			if (newAction && newAction !== currentAction) {
+
+				actionList.push(
+					[newAction, actionCounter, actionArray ]
+				)
+
+				actionArray = [];
+				currentAction = newAction;
+				actionCounter = 1;
+
+				// add first action value
+				if (newAction === "press-key") {
+					actionArray.push(e.key);
+				} else if (newAction === "enter-key") {
+					actionArray.push("\n");
+				}
+
+			}
+
+			// ! DEV OPTION
+			if (localStorage.getItem("dev_logLiveArrayAction") != null) {
+				console.log('Action:', currentAction);
+				console.log('Counter:', actionCounter);
+				console.log('Array:', actionArray);
+			}
+
+		}
+
+	});
+
 	// ! DEV OPTION
 	if (localStorage.getItem("dev_keepDevMenu") != null) {
 		document.getElementById("header_top_bar_actions_select_devm").style.display = "block";
+	}
+
+	if (localStorage.getItem("set_darkMode") == 'true') {
+
+		document.body.style.backgroundColor = "black";
+		Array.from(document.body.children).forEach(child => {
+			child.classList.add('dark_mode');
+		});
+		overlay.classList.remove('dark_mode');
+
 	}
 
 })

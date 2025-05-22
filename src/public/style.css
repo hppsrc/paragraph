@@ -59,10 +59,12 @@
 
 		z-index: 9;
 
-		transition: top 0.25s, left 0.1s;
+		transition: top 0.25s,
+		left 0.1s;
 
-		#input {
+		.input {
 			padding: 5px;
+			margin: 0.25em 0;
 
 			border: none;
 			border-radius: 10px;
@@ -92,6 +94,28 @@
 				cursor: pointer;
 			}
 		}
+	}
+
+	#alert_box {
+		padding: 1em;
+
+		width: 150px;
+		height: fit-content;
+
+		display: flex;
+		position: fixed;
+		flex-direction: column;
+
+		left: 1em;
+		top: 110vh;
+
+		border-radius: 10px;
+
+		background-color: #d6d6d6;
+
+		z-index: 9;
+
+		transition: top 0.25s;
 	}
 
 	#overlay {
@@ -197,12 +221,6 @@ html {
 							display: none;
 
 							background-color: #ff77;
-						}
-
-						&#header_top_bar_actions_select_edit {
-							display: none;
-
-							background-color: #77ff8077;
 						}
 
 						&:hover {

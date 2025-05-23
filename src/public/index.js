@@ -1,6 +1,6 @@
 //region GLOBAL VARS
 const version = "2.2.0_feat(undo)";
-const build = "2505221501";
+const build = "2505231701";
 const git_branch = "dev"
 
 //region DOM ELEMENTS
@@ -744,6 +744,17 @@ function hide_action() {
 
 }
 
+function updateAutosaveUI() {
+    header_top_bar_status_save.textContent = 'Autosave ' + (autosave ? 'enabled' : 'disabled');
+}
+
+function toggleAutosave() {
+    autosave = !autosave;
+    localStorage.setItem("autosave", autosave);
+	show_alert(header_top_bar_status_save.textContent+".");
+    updateAutosaveUI();
+}
+
 //region ACTION_WRAPPER
 // * set file name
 // * toggle autosave
@@ -774,16 +785,6 @@ function wrapper_action(arg) {
 
 	}
 
-}
-
-function updateAutosaveUI() {
-    header_top_bar_status_save.textContent = 'Autosave ' + (autosave ? 'enabled' : 'disabled');
-}
-
-function toggleAutosave() {
-    autosave = !autosave;
-    localStorage.setItem("autosave", autosave);
-    updateAutosaveUI();
 }
 
 //region AUTOSAVE
@@ -899,6 +900,7 @@ document.body.appendChild(main);
 
 //region AFTER DOM LOAD ACTIONS
 let sheet;
+
 document.addEventListener("DOMContentLoaded", () => {
 
 	// * sheet selector
@@ -969,47 +971,35 @@ document.addEventListener("DOMContentLoaded", () => {
 	let actionCounter = 0;
 	let actionArray = [];
 	let actionList = [];
-
 	document.addEventListener('keydown', function(e) {
 		let newAction = '';
 
 		if (document.activeElement === sheet) {
 
+			if (e.key === 'Shift' || e.key === 'Control' || e.key === 'Tab' ||
+				e.key === 'Escape' || e.key === 'Alt' ||
+				e.key.match('/F\d{1,2}\b/g') || e.ctrlKey || e.altKey) {
+				return;
+			}
+
 			if (/^[a-zA-Z0-9 !"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]$/.test(e.key)) {
-				newAction = "pkey";
+				currentAction = "pkey";
 				actionArray.push(e.key);
 				actionCounter++;
 			} else if (e.key === "Backspace") {
-				newAction = "back";
+				currentAction = "back";
 				actionCounter++;
 			} else if (e.key === "Enter") {
-				newAction = "entr";
+				currentAction = "entr";
 				actionArray.push("\n");
 				actionCounter++;
 			}
 
-			// if action changes remove array
-			if (newAction && newAction !== currentAction) {
 
-				actionList.push(
-					[newAction, actionCounter, actionArray ]
-				)
-
-				actionArray = [];
-				currentAction = newAction;
-				actionCounter = 1;
-
-				// add first action value
-				if (newAction === "press-key") {
-					actionArray.push(e.key);
-				} else if (newAction === "enter-key") {
-					actionArray.push("\n");
-				}
-
-			}
 
 			// ! DEV OPTION
 			if (localStorage.getItem("dev_logLiveArrayAction") != null) {
+				console.clear();
 				console.log('Action:', currentAction);
 				console.log('Counter:', actionCounter);
 				console.log('Array:', actionArray);
